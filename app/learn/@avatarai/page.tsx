@@ -4,7 +4,7 @@
 import React, { useEffect, useRef, useState, createContext } from 'react'
 // Ensure you have these dependencies correctly imported or available in your project
 import { TalkingHead } from '@/components/TalkingHead/modules/talkinghead.mjs' // This path might need to be adjusted based on your project setup
-import localImage from '../../public/background.png'
+import localImage from 'public/background.png'
 import {
   removeConsecutivePunctuation,
   handleIntroQuestions
