@@ -13,9 +13,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
 import { toast } from 'sonner'
 import TalkingHeadComponent from '../app/avatarai/page'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
+const SERVER_URL = "http://ec2-54-177-4-53.us-west-1.compute.amazonaws.com:8000/tts";  // Use your server's IP address or domain
+const AUDIO_FORMAT = 'audio/wav';
 
 const AudioPlayer = () => {
-  const fetchAndPlayAudio = async text => {
+  const fetchAndPlayAudio = async (text: string) => {
     console.log('Fetching audio for:', text)
     const SERVER_URL =
       'https://hjngsvyig3.execute-api.us-west-1.amazonaws.com/testing/speak' // Use your server's IP address or domain
@@ -31,20 +34,21 @@ const AudioPlayer = () => {
         const arrayBuffer = await response.arrayBuffer()
         console.log('Array buffer:', arrayBuffer)
         const source = audioContext.createBufferSource()
+        let audioBuffer : any
         try {
           console.log('Decoding audio data...')
-          const testAudioBuffer =
+            audioBuffer =
             await audioContext.decodeAudioData(arrayBuffer)
-          console.log('Test AudioBuffer:', testAudioBuffer)
+          console.log('Test AudioBuffer:', audioBuffer)
         } catch (error) {
           console.error('Error decoding test audio data:', error)
         }
-        /*     console.log('Audio buffer:', audioBuffer)
+        console.log('Audio buffer:', )
         // Set the buffer to the audio source
         source.buffer = audioBuffer
         source.connect(audioContext.destination)
         // Play the audio
-        source.start(0) */
+        source.start(0) 
       } else {
         console.error(`Error: ${response.status} - ${response.statusText}`)
       }
