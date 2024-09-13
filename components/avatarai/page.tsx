@@ -29,7 +29,11 @@ import { useSubtitles } from '@/lib/hooks/subtitles-context'
 const TalkingHeadComponent = ({
   audioToSay,
   textToSay,
-  setIsResponding = null
+  setIsResponding
+}: {
+  audioToSay: any
+  textToSay: string
+  setIsResponding?: any
 }) => {
   // the audioToSay is an audio Buffer, like what we get from the server
   // the textToSay is the text that matches the audioToSay
@@ -99,7 +103,7 @@ const TalkingHeadComponent = ({
         })
       })
     }
-  }, [audioToSay, calculateAudio, setIsResponding, subtitlesState, textToSay])
+  }, [audioToSay])
 
   useEffect(() => {
     const handleResize = () => {
