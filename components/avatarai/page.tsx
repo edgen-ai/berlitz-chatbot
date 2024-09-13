@@ -26,7 +26,11 @@ import Loading from '@/components/TalkingHead/components/loading'
 import { useEmote } from '@/lib/hooks/emote-context'
 import { useSubtitles } from '@/lib/hooks/subtitles-context'
 
-const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
+const TalkingHeadComponent = ({
+  audioToSay,
+  textToSay,
+  setIsResponding = null
+}) => {
   // the audioToSay is an audio Buffer, like what we get from the server
   // the textToSay is the text that matches the audioToSay
   // the hack consists on saying the textToSay
@@ -70,7 +74,7 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
     console.log('TalkingHeadComponent mounted')
     if (audioToSay) {
       setTimeout(() => {
-        setIsResponding(true)
+        if (setIsResponding) setIsResponding(true)
 
         calculateAudio(audioToSay).then(audio => {
           head.current.speakAudio(
@@ -84,7 +88,8 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
             },
             {},
             () => {
-              setIsResponding(false)
+              if (setIsResponding) setIsResponding(false)
+
               if (subtitlesState) setSubtitles('')
             },
             () => {
@@ -329,7 +334,8 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
     }
   }
   const onComplete = () => {
-    setIsResponding(false)
+    if (setIsResponding) setIsResponding(false)
+
     console.log("running 'onComplete'")
   }
   function extractAndSeparate(text) {
