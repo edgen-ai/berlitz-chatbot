@@ -99,7 +99,7 @@ const TalkingHeadComponent = ({
         })
       })
     }
-  }, [audioToSay])
+  }, [audioToSay, calculateAudio, setIsResponding, subtitlesState, textToSay])
 
   useEffect(() => {
     const handleResize = () => {
