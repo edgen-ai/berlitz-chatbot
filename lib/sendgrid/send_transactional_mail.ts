@@ -1,6 +1,10 @@
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
+interface TemplateData {
+  name: string
+}
+
 const send_transactional_mail = async ({
   to,
   templateId,
@@ -8,14 +12,14 @@ const send_transactional_mail = async ({
 }: {
   to: string
   templateId: string
-  data: object
+  data: TemplateData
 }) => {
   const msg = {
     to,
     from: 'mail@edgen.ai',
     templateId,
     dynamicTemplateData: {
-      name: 'Testing Templates'
+      name: data.name
     }
   }
   sgMail.send(msg)
