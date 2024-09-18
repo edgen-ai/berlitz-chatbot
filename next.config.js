@@ -13,6 +13,8 @@ module.exports = {
   env: {
     GROQ_API_KEY: process.env.GROQ_API_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    OPENAI_KEY: process.env.OPEN_AI_KEY
+    OPENAI_KEY: process.env.OPEN_AI_KEY,
+    MONGODB_CONNECTION_STRING: process.env.MONGODB_CONNECTION_STRING,
+
   }
 }
