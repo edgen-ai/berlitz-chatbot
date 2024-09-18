@@ -33,7 +33,6 @@ export function Chat({ id }: ChatProps) {
   const [isChatOpen, setIsChatOpen] = useState(true)
   const [isResponding, setIsResponding] = useState(false)
 
-
   // https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
   let {
     messages,
@@ -133,22 +132,21 @@ export function Chat({ id }: ChatProps) {
 
     return mergedSentences
   }
-  
-  const extractPronunciationContent = (text:string) => {
+
+  const extractPronunciationContent = (text: string) => {
     // Regex to match content between <pronunciation> and </pronunciation>, including multiline content
-    const pronunciationRegex = /<pronunciation>([\s\S]*?)<\/pronunciation>/g;
-    const pronunciationMatches = [];
-    let match;
+    const pronunciationRegex = /<pronunciation>([\s\S]*?)<\/pronunciation>/g
+    const pronunciationMatches = []
+    let match
 
     // Loop through all matches and extract content between the tags
     while ((match = pronunciationRegex.exec(text)) !== null) {
-        pronunciationMatches.push(match[1].trim()); // Push the matched content (trimmed) into the array
+      pronunciationMatches.push(match[1].trim()) // Push the matched content (trimmed) into the array
     }
 
     // Return the matches or a message if no tags are found
-    return pronunciationMatches.length > 0 ? pronunciationMatches : text;
-};
-
+    return pronunciationMatches.length > 0 ? pronunciationMatches : text
+  }
 
   async function playText({ text }: { text: string }) {
     const audiB = await fetch_and_play_audio({
@@ -164,12 +162,18 @@ export function Chat({ id }: ChatProps) {
       }
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
-        const pronunciation_exercise = extractPronunciationContent(lastMessage.content)
-        if (typeof(pronunciation_exercise) !== "string") {
-          setMessages([...messages, {
-            role: 'assistant', content: pronunciation_exercise[0],
-            id: ''
-          }])
+        const pronunciation_exercise = extractPronunciationContent(
+          lastMessage.content
+        )
+        if (typeof pronunciation_exercise !== 'string') {
+          setMessages([
+            ...messages,
+            {
+              role: 'assistant',
+              content: pronunciation_exercise[0],
+              id: ''
+            }
+          ])
         }
         const sentences = get_each_sentence(lastMessage.content)
         for (const sentence of sentences) {
@@ -236,8 +240,8 @@ export function Chat({ id }: ChatProps) {
       <div className="flex items-start justify-start width-full">
         <ClassTitle />
       </div>
-      <div className="flex size-full justify-between">
-        <div className="relative h-full w-1/2">
+      <div className="flex size-full justify-between flex-col md:flex-row scrollbar-thin scrollbar-thumb-primary-foreground scrollbar-track-primary-darker">
+        <div className="relative h-1/2 md:h-full md:w-1/2">
           <Image
             src={
               selectedBackground &&
@@ -258,7 +262,7 @@ export function Chat({ id }: ChatProps) {
             setIsResponding={setIsResponding}
           />
         </div>
-        <div className="px-2 max-w-2xl w-1/2">
+        <div className="px-2 max-w-2xl h-1/2 w-full md:w-1/2 md:h-full">
           {isChatOpen ? (
             <ChatPanel
               setIsChatOpen={setIsChatOpen}

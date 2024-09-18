@@ -1455,19 +1455,7 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
   }
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        maxWidth: '100%',
-        width: '100%',
-        height: 'calc(100vh - 64px)', // Changed to viewport height to ensure it covers the whole screen
-        margin: '0 auto', // Updated for consistency, though 'auto' was fine for horizontal centering
-        backgroundPosition: 'center', // Center the background image
-        backgroundSize: 'cover', // Ensure the image covers the whole area
-        backgroundImage: `url(${localImage})`, // Use backticks here
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
+    <div className="relative w-full h-full">
       <div
         id="avatar"
         ref={avatarRef}

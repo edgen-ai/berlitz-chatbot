@@ -287,13 +287,7 @@ export function ChatPanel({
   }, [messages, classTypes, selectedClass])
 
   return (
-    <div
-      className="flex flex-col justify-end width-full rounded-lg shadow-lg "
-      style={{
-        maxWidth: '50vw',
-        height: '85vh' // Fixed height
-      }}
-    >
+    <div className="flex flex-col justify-end width-full rounded-lg shadow-lg max-w-2xl h-full">
       <Chatheader setIsChatOpen={setIsChatOpen} />
       <MessageList
         messages={messages}
