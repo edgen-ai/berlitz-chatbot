@@ -1,6 +1,7 @@
 'use client'
 import 'regenerator-runtime/runtime'
-import { useEffect, useState, useRef, use } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import Image from 'next/image'
 import { Message, Session } from '@/lib/types'
 import TalkingHeadComponent from '@/components/avatarai/page'
 import { useChat } from 'ai/react'
@@ -13,7 +14,6 @@ import CrazyButtons from './crazy-buttons'
 import { useBackground } from '@/lib/hooks/background-context'
 import { useClass } from '@/lib/hooks/class-context'
 import Backgrounds from '@/public/data/backgrounds'
-import VocabularyList from './vocabulary-list'
 import { ChatPanel } from './chat-panel'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
@@ -28,38 +28,56 @@ export function Chat({ id }: ChatProps) {
     undefined
   )
   const [textResponse, setTextResponse] = useState('')
-  const [isEditing, setIsEditing] = useState(false) // Track whether the user is editing
+  const [isEditing, setIsEditing] = useState(false)
+  const [localClassType, setLocalClassType] = useState('2')
+  const [isChatOpen, setIsChatOpen] = useState(true)
+  const [isResponding, setIsResponding] = useState(false)
 
-  const [isChatOpen, setIsChatOpen] = useState(true) // State to manage chat visibility
-  // API: https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
+
+  // https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
   let {
     messages,
     input,
     setInput,
     handleInputChange,
     handleSubmit,
-    isLoading
+    isLoading,
+    setMessages,
+    append
   } = useChat({
     body: {
-      classType: '2'
+      classType: localClassType
     }
   })
-  const lastAiMessageRef = useRef<Message | null>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null) // Ref for the textarea
-  const [isResponding, setIsResponding] = useState(false) // Track if we are waiting for a response
-  const { selectedBackground } = useBackground()
-  const { selectedClass } = useClass()
+
   const {
     transcript,
     resetTranscript,
     browserSupportsSpeechRecognition,
     listening
   } = useSpeechRecognition()
+  const { selectedBackground } = useBackground()
+  const { selectedClass } = useClass()
 
+  const lastAiMessageRef = useRef<Message | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null) // Ref for the textarea
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      append({ role: 'user', content: "Hello, let's start the class!" })
+    }
+  }, [append, messages])
+
+  useEffect(() => {
+    setLocalClassType(selectedClass)
+  }, [selectedClass])
   useEffect(() => {
     setInput(transcript)
   }, [transcript])
-
+  useEffect(() => {
+    setMessages([])
+    setInput('')
+  }, [localClassType])
   useEffect(() => {
     console.log('running lsistener')
     if (!browserSupportsSpeechRecognition) {
@@ -87,9 +105,58 @@ export function Chat({ id }: ChatProps) {
   const get_each_sentence = (phrase: string) => {
     const endofSentenceRegex = /([^\.\?\!]+[\.\?\!])/g
     const sentences = phrase.match(endofSentenceRegex) || [] // Match sentences with punctuation
-    return sentences
-  }
 
+    const mergedSentences: string[] = []
+    let tempSentence = ''
+    const min_words = 5
+    for (let i = 0; i < sentences.length; i++) {
+      const wordCount = sentences[i].split(' ').length
+      // Accumulate sentence if it's under the word limit
+      if (wordCount < min_words) {
+        tempSentence += sentences[i]
+        continue
+      }
+
+      // Merge with accumulated sentences if needed
+      if (tempSentence) {
+        mergedSentences.push(tempSentence + ' ' + sentences[i])
+        tempSentence = '' // Clear temp after merging
+      } else {
+        mergedSentences.push(sentences[i]) // Otherwise, push current sentence
+      }
+    }
+
+    // In case the last tempSentence was not added (if it has fewer than min_words)
+    if (tempSentence) {
+      mergedSentences.push(tempSentence.trim())
+    }
+
+    return mergedSentences
+  }
+  
+  const extractPronunciationContent = (text:string) => {
+    // Regex to match content between <pronunciation> and </pronunciation>, including multiline content
+    const pronunciationRegex = /<pronunciation>([\s\S]*?)<\/pronunciation>/g;
+    const pronunciationMatches = [];
+    let match;
+
+    // Loop through all matches and extract content between the tags
+    while ((match = pronunciationRegex.exec(text)) !== null) {
+        pronunciationMatches.push(match[1].trim()); // Push the matched content (trimmed) into the array
+    }
+
+    // Return the matches or a message if no tags are found
+    return pronunciationMatches.length > 0 ? pronunciationMatches : text;
+};
+
+
+  async function playText({ text }: { text: string }) {
+    const audiB = await fetch_and_play_audio({
+      text: text
+    })
+    setTextResponse(text)
+    setAudioBuffer(audiB as any)
+  }
   useEffect(() => {
     async function getAudioAndPlay() {
       if (messages.length === 0) {
@@ -97,6 +164,13 @@ export function Chat({ id }: ChatProps) {
       }
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
+        const pronunciation_exercise = extractPronunciationContent(lastMessage.content)
+        if (typeof(pronunciation_exercise) !== "string") {
+          setMessages([...messages, {
+            role: 'assistant', content: pronunciation_exercise[0],
+            id: ''
+          }])
+        }
         const sentences = get_each_sentence(lastMessage.content)
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
@@ -133,7 +207,7 @@ export function Chat({ id }: ChatProps) {
     if (textareaRef.current) {
       adjustTextareaHeight() // Adjust height whenever transcript is updated
     }
-  }, [transcript])
+  }, [transcript, input])
 
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
@@ -148,67 +222,43 @@ export function Chat({ id }: ChatProps) {
     setIsEditing(true) // Stop transcription when the user starts typing
     handleInputChange(event) // Allow manual editing of the input
   }
+  const ClassTitle = () => (
+    <span className="text-2xl font-semibold text-center">
+      {
+        classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
+          ?.description
+      }
+    </span>
+  )
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        height: 'calc(100vh - 65px)'
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-        <span>
-          {
-            classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
-              ?.description
-          }
-        </span>
+    <div className="flex flex-col size-full ">
+      <div className="flex items-start justify-start width-full">
+        <ClassTitle />
       </div>
-      <div
-        style={{
-          display: 'flex',
-          height: 'calc(98vh - 65px)',
-          width: '100%'
-        }}
-      >
-        <div
-          style={{
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            width: '100%',
-            height: 'calc(98vh - 65px)',
-            backgroundImage: `url(${
-              Backgrounds.find
-                ? Backgrounds.find(bg => bg.id === selectedBackground)?.src
+      <div className="flex size-full justify-between">
+        <div className="relative h-full w-1/2">
+          <Image
+            src={
+              selectedBackground &&
+              Backgrounds &&
+              Backgrounds.find(bg => bg.id === selectedBackground)
+                ? Backgrounds.find(bg => bg.id === selectedBackground)!.src
                 : Backgrounds[0].src
-            })`,
-            transition: 'background-image 0.5s ease-in-out'
-          }}
-        >
+            }
+            alt="Background"
+            layout="fill"
+            style={{ objectFit: 'cover', filter: 'blur(2px)' }}
+            priority={true}
+            className="transition ease-in-out duration-1000"
+          />
           <TalkingHeadComponent
             textToSay={textResponse}
             audioToSay={audioBuffer}
             setIsResponding={setIsResponding}
           />
         </div>
-        <div
-          style={{
-            width: '100%',
-            height: 'calc(98vh - 85px)',
-            display: 'flex',
-            flexDirection: 'column-reverse',
-            alignItems: 'space-evenly'
-          }}
-        >
+        <div className="px-2 max-w-2xl w-1/2">
           {isChatOpen ? (
             <ChatPanel
               setIsChatOpen={setIsChatOpen}
@@ -219,6 +269,8 @@ export function Chat({ id }: ChatProps) {
               input={input}
               handleTextareaChange={handleTextareaChange}
               textareaRef={textareaRef}
+              playText={playText}
+              setMessages={setMessages}
             />
           ) : (
             <CrazyButtons setIsChatOpen={setIsChatOpen} />

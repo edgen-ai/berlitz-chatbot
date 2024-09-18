@@ -1,47 +1,79 @@
 import classTypes from '@/public/data/classTypes'
+import { Badge } from '@/components/ui/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 
 const VocabularyList = ({
   selectedClass,
-  saidWords
+  saidWords,
+  playText
 }: {
   selectedClass: string
   saidWords: string[]
+  playText: ({ text }: { text: string }) => void
 }) => {
+  const vocabulary =
+    classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
+      ?.vocabulary || []
+  // Filter out the saidWords and concatenate them at the end
+  const filteredVocabulary = vocabulary.filter(
+    word => !saidWords.includes(word)
+  )
+  const updatedVocabulary = [...filteredVocabulary, ...saidWords]
+  const selectedClassType = classTypes.find(ct => ct.id === selectedClass)
+  const vocabularyDefinitions = selectedClassType?.vocabularyDefinitions || []
+  const vocabularyAbbreviations =
+    selectedClassType?.vocabularyAbbreviations || []
   return (
     <div>
-      {classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
-        ?.vocabulary?.length > 0 ? (
-        <div
-          style={{
-            display: 'flex', // Flexbox layout for horizontal alignment
-            padding: 0, // Remove default padding
-            margin: 0, // Remove default margin
-            gap: '20px' // Space between items (use marginRight if not using gap)
-          }}
-        >
-          {classTypes[
-            classTypes.findIndex(ct => ct.id === selectedClass)
-          ].vocabulary.map((word, index) => (
-            <span
-              key={index}
-              // style so that the word is barely readable if not said
-              // and animate when the user said it
-              style={{
-                padding: '8px',
-                borderRadius: '20px',
-                backgroundColor: saidWords.includes(word)
-                  ? '#DCF8C6'
-                  : '#E5E5EA',
-                color: saidWords.includes(word) ? '#000' : '#fff',
-                transition: 'background-color 0.5s ease-in-out',
-                cursor: 'pointer'
-              }}
-            >
-              {word}
-            </span> // Using <div> for each word
-          ))}
+      {updatedVocabulary.length > 0 ? (
+        <div className="flex overflow-x-auto whitespace-nowrap p-2 gap-2">
+          {updatedVocabulary.map((word, index) => {
+            // Find the corresponding definition if it exists
+            const definitionIndex = vocabulary.findIndex(v => v === word)
+
+            const definition =
+              definitionIndex !== -1
+                ? vocabularyDefinitions[definitionIndex]
+                : null
+
+            return (
+              <Tooltip key={index}>
+                <TooltipTrigger>
+                  <Badge
+                    variant={`${saidWords.includes(word) ? 'default' : 'secondary'}`}
+                    onClick={() =>
+                      playText({
+                        text: definition
+                          ? `The word ${word} means ${definition}`
+                          : `Repeat after me: ${word}`
+                      })
+                    }
+                  >
+                    {`${word}${
+                      vocabularyAbbreviations[definitionIndex]
+                        ? ` (${vocabularyAbbreviations[definitionIndex]})`
+                        : ''
+                    }`}
+                  </Badge>
+                </TooltipTrigger>
+                {definition && (
+                  <TooltipContent>
+                    <p>{definition}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            )
+          })}
         </div>
-      ) : null}
+      ) : (
+        <div className="flex overflow-x-auto whitespace-nowrap p-2 gap-2 ">
+          <span className="text-gray-500">No vocabulary for this lesson</span>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client'
 
-import React, { useEffect, useRef, useState, createContext } from 'react'
+import React, { useEffect, useRef, useState, createContext, use } from 'react'
 // Ensure you have these dependencies correctly imported or available in your project
 import { TalkingHead } from '@/components/TalkingHead/modules/talkinghead.mjs' // This path might need to be adjusted based on your project setup
 import localImage from '../../public/background.png'
@@ -23,6 +23,9 @@ import { setupWebSocket } from '@/components/avatarai/websocket'
 import TestingUI from '@/components/TalkingHead/components/testingUI'
 import Subtitles from '@/components/TalkingHead/components/subtitles'
 import Loading from '@/components/TalkingHead/components/loading'
+import { useEmote } from '@/lib/hooks/emote-context'
+import { useSubtitles } from '@/lib/hooks/subtitles-context'
+
 const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
   // the audioToSay is an audio Buffer, like what we get from the server
   // the textToSay is the text that matches the audioToSay
@@ -56,31 +59,20 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
   const reactQueue = useRef([])
   const [fontSize, setFontSize] = useState(16)
   const speakQueue = useRef([])
+  const { selectedEmote } = useEmote()
+  const { subtitlesState } = useSubtitles()
+  useEffect(() => {
+    if (selectedEmote && selectedEmote !== '')
+      head.current.speakEmoji(selectedEmote)
+  }, [selectedEmote])
 
   useEffect(() => {
     console.log('TalkingHeadComponent mounted')
     if (audioToSay) {
       setTimeout(() => {
-        console.log('Sending message to speak')
         setIsResponding(true)
-        console.log('toSay', audioToSay)
-        /* head.current.speakText(
-        'hello, how are you today?',
-        null,
-        updateSubtitles,
-        undefined,
-        onComplete,
-        {
-          lang: 'en-US',
-          volume: 1.0,
-          rate: playSpeed.current,
-          voice: 'en-GB-Wavenet-F',
-          pitch: 0
-        }
-      ) */
-        calculateAudio(audioToSay).then(audio => {
-          console.log('Audio calculated')
 
+        calculateAudio(audioToSay).then(audio => {
           head.current.speakAudio(
             {
               words: audio.words,
@@ -93,12 +85,12 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
             {},
             () => {
               setIsResponding(false)
-              console.log("running 'onComplete'")
+              if (subtitlesState) setSubtitles('')
             },
-            {}
+            () => {
+              if (subtitlesState) setSubtitles(textToSay)
+            }
           )
-
-          console.log('SENT message ')
         })
       })
     }
@@ -203,15 +195,12 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
       // Save the audioBuffer to a temporary file
       const wavBuffer = audioBufferToWav(audioBuffer)
       const file = new File([wavBuffer], 'audio.wav', { type: 'audio/wav' })
-      console.log('File created:', file)
 
       const form = new FormData()
       form.append('file', file)
       form.append('model', 'whisper-large-v3')
       form.append('language', 'en')
       form.append('response_format', 'verbose_json')
-
-      console.log('API Key:', process.env.OPENAI_KEY)
 
       const response = await fetch(
         'https://api.groq.com/openai/v1/audio/transcriptions',
@@ -232,7 +221,6 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
       }
 
       const result = await response.json()
-      console.log('API Result:', result)
       let audio = {
         words: [],
         wtimes: [],
@@ -246,7 +234,6 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
       result.segments.forEach(segment => {
         // Split the segment text into words
         const words = segment.text.trim().split(/\s+/)
-        console.log('Words:', words)
 
         // Iterate through each word and process its timing and duration
         words.forEach((word, index) => {
@@ -1374,10 +1361,7 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
     }
     await processEvent(event)
   }
-  const initTalkingHead = async (
-    nodeAvatar,
-    url = 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png'
-  ) => {
+  const initTalkingHead = async (nodeAvatar, url = '/glb/clara.glb') => {
     if (!nodeAvatar) return
     const newHead = new TalkingHead(nodeAvatar, {
       ttsEndpoint:
