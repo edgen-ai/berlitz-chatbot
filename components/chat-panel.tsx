@@ -91,7 +91,7 @@ const MessageList = ({
   onStopRecording: Function
   isRecording: boolean
 }) => (
-  <div className="flex flex-col gap-1 p-2 overflow-auto">
+  <div className="flex flex-col gap-1 p-2 overflow-auto grow">
     {messages.map((message: any, index: number) =>
       index > 0 ? (
         <Message
