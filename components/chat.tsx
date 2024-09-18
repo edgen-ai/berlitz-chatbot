@@ -241,7 +241,7 @@ export function Chat({ id }: ChatProps) {
         <ClassTitle />
       </div>
       <div className="flex size-full justify-between flex-col md:flex-row scrollbar-thin scrollbar-thumb-primary-foreground scrollbar-track-primary-darker">
-        <div className="relative h-1/2 md:h-full md:w-1/2">
+        <div className="relative h-1/3 md:h-full md:w-1/2">
           <Image
             src={
               selectedBackground &&
@@ -262,7 +262,7 @@ export function Chat({ id }: ChatProps) {
             setIsResponding={setIsResponding}
           />
         </div>
-        <div className="px-2 max-w-2xl h-1/2 w-full md:w-1/2 md:h-full">
+        <div className="px-2 max-w-2xl h-2/3 w-full md:w-1/2 md:h-full">
           {isChatOpen ? (
             <ChatPanel
               setIsChatOpen={setIsChatOpen}
