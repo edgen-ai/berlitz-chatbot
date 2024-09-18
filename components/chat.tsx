@@ -240,7 +240,7 @@ export function Chat({ id }: ChatProps) {
       <div className="flex items-start justify-start width-full">
         <ClassTitle />
       </div>
-      <div className="flex size-full justify-between flex-col md:flex-row scrollbar-thin scrollbar-thumb-primary-foreground scrollbar-track-primary-darker">
+      <div className="flex size-full justify-between flex-col md:flex-row scrollbar-thin scrollbar-thumb-primary-foreground scrollbar-track-primary-darker min-h-0">
         <div className="relative h-1/3 md:h-full md:w-1/2">
           <Image
             src={

@@ -91,12 +91,7 @@ const MessageList = ({
   onStopRecording: Function
   isRecording: boolean
 }) => (
-  <div
-    style={{
-      flex: '1',
-      overflowY: 'auto' // Scrollable
-    }}
-  >
+  <div className="flex flex-col gap-1 p-2 overflow-auto">
     {messages.map((message: any, index: number) =>
       index > 0 ? (
         <Message
@@ -287,7 +282,7 @@ export function ChatPanel({
   }, [messages, classTypes, selectedClass])
 
   return (
-    <div className="flex flex-col justify-end width-full rounded-lg shadow-lg max-w-2xl h-full">
+    <div className="flex flex-col justify-between width-full rounded-lg shadow-lg max-w-2xl h-full">
       <Chatheader setIsChatOpen={setIsChatOpen} />
       <MessageList
         messages={messages}
@@ -295,17 +290,19 @@ export function ChatPanel({
         onStopRecording={handleStopRecording}
         isRecording={isRecording}
       />
-      <ChatInput
-        onSubmit={onSubmit}
-        input={input}
-        handleTextareaChange={handleTextareaChange}
-        textareaRef={textareaRef}
-      />
-      <VocabularyList
-        selectedClass={selectedClass}
-        saidWords={saidWords}
-        playText={playText}
-      />
+      <div>
+        <ChatInput
+          onSubmit={onSubmit}
+          input={input}
+          handleTextareaChange={handleTextareaChange}
+          textareaRef={textareaRef}
+        />
+        <VocabularyList
+          selectedClass={selectedClass}
+          saidWords={saidWords}
+          playText={playText}
+        />
+      </div>
     </div>
   )
 }
