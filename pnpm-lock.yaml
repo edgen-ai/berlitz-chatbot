@@ -2687,8 +2687,9 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  langsmith@0.1.56:
-    resolution: {integrity: sha512-uli1q9zm0tCCPh4iQShjoI+642QGcGL8r1xcKl+/5dO6OzOxtsF7m7UiSkGMs410tWcAHIuQq257AxYB50NslA==}
+
+  langsmith@0.1.57:
+    resolution: {integrity: sha512-mHzZgKW+bQdyGAGx/QlcfB1mgMMsakzceN44L0CHLYVaI4j1t50PG8m5YfzSiqBisIdq/Xi2jWZTWEGZ3BR9zA==}
     peerDependencies:
       openai: '*'
     peerDependenciesMeta:
@@ -4459,7 +4460,8 @@ snapshots:
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.14
-      langsmith: 0.1.56(openai@4.52.2)
+
+      langsmith: 0.1.57(openai@4.52.2)
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
@@ -6904,7 +6906,8 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  langsmith@0.1.56(openai@4.52.2):
+
+  langsmith@0.1.57(openai@4.52.2):
     dependencies:
       '@types/uuid': 10.0.0
       commander: 10.0.1
