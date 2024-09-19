@@ -23,14 +23,8 @@ export default function CrazyButtons({
     </div>
   )
   return (
-    <div
-      className="flex flex-row items-around gap-1"
-      style={{
-        maxWidth: '50vw',
-        height: '85vh' // Fixed height
-      }}
-    >
-      <div className="flex flex-col items-start justify-start gap-2 height-full flex-3">
+    <div className="flex flex-row items-around gap-1 w-full overflow-y-auto">
+      <div className="flex flex-col items-start justify-start gap-2 height-full flex-3 overflow-y-auto">
         <span className="text-xl font-semibold dark:text-white text-black">
           Tips for learning with Clara
         </span>
@@ -63,7 +57,7 @@ export default function CrazyButtons({
           description="Be patient and learn a ton!"
         />
       </div>
-      <div className="flex flex-col items-end justify-end gap-2 height-full flex-1">
+      <div className="flex flex-col-reverse md:flex-col items-end justify-end gap-2 height-full flex-1 py-2">
         <Button disabled variant={'secondary'}>
           📅
         </Button>
