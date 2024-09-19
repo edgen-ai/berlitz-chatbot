@@ -48,7 +48,7 @@ const ChatInput = ({
     <AttachButton />
     <Textarea
       style={{ resize: 'none' }}
-      className="dark:bg-primary dark:text-primary-foreground"
+      className="dark:bg-primary dark:text-primary-foreground max-h-16 leading-5 overflow-y-auto"
       name="prompt"
       value={input} // Always keep the input updated
       onChange={handleTextareaChange}
