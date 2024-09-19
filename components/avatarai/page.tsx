@@ -1361,7 +1361,7 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
     }
     await processEvent(event)
   }
-  const initTalkingHead = async (nodeAvatar, url = '/glb/clara.glb') => {
+  const initTalkingHead = async (nodeAvatar, url = '/glb/claradr.glb') => {
     if (!nodeAvatar) return
     const newHead = new TalkingHead(nodeAvatar, {
       ttsEndpoint:
