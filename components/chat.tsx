@@ -163,8 +163,13 @@ export function Chat({ id }: ChatProps) {
       }
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
-        const { cleanText: clean_script, exercises: pronunciation_exercise }  = process_script(lastMessage.content)
-        if (typeof pronunciation_exercise !== 'string') {
+        const { cleanText: clean_script, exercises: pronunciation_exercise } =
+          process_script(lastMessage.content)
+        if (
+          typeof pronunciation_exercise !== 'string' &&
+          pronunciation_exercise.length > 0 &&
+          pronunciation_exercise[0]
+        ) {
           setMessages([
             ...messages,
             {
