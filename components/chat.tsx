@@ -180,6 +180,7 @@ export function Chat({ id }: ChatProps) {
           ])
         }
         const sentences = get_each_sentence(lastMessage.content)
+        console.log('sentences', sentences)
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
             text: sentence
@@ -231,7 +232,7 @@ export function Chat({ id }: ChatProps) {
     handleInputChange(event) // Allow manual editing of the input
   }
   const ClassTitle = () => (
-    <span className="text-2xl font-semibold text-center">
+    <span className="text-md md:text-2xl font-semibold text-center">
       {
         classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
           ?.description
