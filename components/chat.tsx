@@ -15,6 +15,7 @@ import { useBackground } from '@/lib/hooks/background-context'
 import { useClass } from '@/lib/hooks/class-context'
 import Backgrounds from '@/public/data/backgrounds'
 import { ChatPanel } from './chat-panel'
+import { process_script } from '@/lib/api/process_script'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -162,16 +163,14 @@ export function Chat({ id }: ChatProps) {
       }
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
-        const pronunciation_exercise = extractPronunciationContent(
-          lastMessage.content
-        )
+        const { cleanText: clean_script, exercises: pronunciation_exercise }  = process_script(lastMessage.content)
         if (typeof pronunciation_exercise !== 'string') {
           setMessages([
             ...messages,
             {
               role: 'assistant',
-              content: pronunciation_exercise[0],
-              id: ''
+              content: `Try to say ${pronunciation_exercise[0].content}`,
+              id: 'pronunciation'
             }
           ])
         }

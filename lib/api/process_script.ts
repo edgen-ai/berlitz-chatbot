@@ -9,9 +9,10 @@ import { sample } from 'lodash';
  */
 
 const { toWords } = require('number-to-words');
-function process_script(text: string): { cleanText: string, exercises: Array<Object> } {
+function process_script(text: string): { cleanText: string, exercises: Array<{id:string, content:string}> } {
 
   function replaceExerciseTags(script: string): string {
+    console.log("script", script);
     const replacementPhrasesExercise = [
       "<esp>Ahora es tu turno.</esp>",
       "<esp>Es tu turno inténtalo.</esp>",
@@ -32,6 +33,7 @@ function process_script(text: string): { cleanText: string, exercises: Array<Obj
     let cleanedScript = script.replace(/<pronunciation>.*?<\/pronunciation>/g, () => {
       return sample(replacementPhrasesExercise) + " ";
     });
+    console.log("First cleaned script", cleanedScript);
 
     cleanedScript = cleanedScript.replace(/<fill>.*?<\/fill> \[ANSWER:(.*?)\]/g, () => {
       return sample(replacementPhrasesFill) + " ";
@@ -49,6 +51,7 @@ function process_script(text: string): { cleanText: string, exercises: Array<Obj
 
   // Remove the tags from the script
   const cleanedScript = replaceExerciseTags(text);
+  console.log("Cleaned script", cleanedScript);
   const cleanText: string = convertNumbersToWords(cleanedScript);
   console.log("Cleaned script", cleanText); 
   return {cleanText, exercises};
@@ -65,7 +68,7 @@ function convertNumbersToWords(text: string): string {
   return text.replace(pattern, (substring: string, ...args: any) => replaceWithWord(args));
 }
 
-function extractPronunciation(_text: string): Array<Object> {
+function extractPronunciation(_text: string): Array<{id:string, content:string}> {
   const pattern = /<pronunciation>(.*?)<\/pronunciation>/g;
   const matches = [];
   
@@ -77,7 +80,7 @@ function extractPronunciation(_text: string): Array<Object> {
   return matches;
 }
 
-function extractFill(_text: string): Array<Object> {
+function extractFill(_text: string): Array<{ id:string, content:string, answer: string}> {
   const pattern = /<fill>(.*?)<\/fill> \[ANSWER:(.*?)\]/g;
   const matches = [];
 
