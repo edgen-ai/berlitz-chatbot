@@ -1,21 +1,13 @@
 export default function Subtitles({ subtitles, isKeyboardOpen, fontSize }) {
   return (
     <div
+      className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 p-2 rounded-lg w-full md:w-80 text-center"
       style={{
-        position: "absolute",
-        bottom: isKeyboardOpen ? "30px" : "140px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        color: "#FFF", // Change as needed
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Background to make text more readable
-        padding: "10px",
-        borderRadius: "5px",
-        width: "80%",
-        fontSize: fontSize,
-        textAlign: "center", // Adjust as needed
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Background to make text more readable
+        fontSize: fontSize
       }}
     >
       {subtitles}
     </div>
-  );
+  )
 }
