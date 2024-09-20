@@ -222,6 +222,8 @@ export function Chat({ id }: ChatProps) {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto' // Reset the height
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px` // Adjust based on scroll height
+      // Scroll to the bottom of the textarea
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight
     }
   }
 
