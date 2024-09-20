@@ -217,7 +217,9 @@ export function Chat({ id }: ChatProps) {
           const audiB = await fetch_and_play_audio({
             text: cleanup_markdown_from_text({ markdownText: sentence })
           })
-          setTextResponse(sentence)
+          setTextResponse(
+            cleanup_markdown_from_text({ markdownText: sentence })
+          )
           setAudioBuffer(audiB as any)
         }
       }
