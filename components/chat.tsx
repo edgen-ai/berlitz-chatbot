@@ -165,6 +165,7 @@ export function Chat({ id }: ChatProps) {
         const lastMessage = messages[messages.length - 1]
         const { cleanText: clean_script, exercises: pronunciation_exercise } =
           process_script(lastMessage.content)
+        const sentences = get_each_sentence(lastMessage.content)
         if (
           typeof pronunciation_exercise !== 'string' &&
           pronunciation_exercise.length > 0 &&
@@ -179,8 +180,6 @@ export function Chat({ id }: ChatProps) {
             }
           ])
         }
-        const sentences = get_each_sentence(lastMessage.content)
-        console.log('sentences', sentences)
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
             text: sentence
