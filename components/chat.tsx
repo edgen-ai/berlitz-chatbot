@@ -101,7 +101,40 @@ export function Chat({ id }: ChatProps) {
       console.log('Stopped listening for speech.')
     }
   }, [isResponding, isEditing, browserSupportsSpeechRecognition])
+  const cleanup_markdown_from_text = ({
+    markdownText
+  }: {
+    markdownText: string
+  }) => {
+    let cleanText = markdownText
 
+    // Remove code blocks and inline code
+    cleanText = cleanText.replace(/`{3}[\s\S]+?`{3}/g, '') // Code blocks
+    cleanText = cleanText.replace(/`[^`]+`/g, '') // Inline code
+
+    // Remove images and links
+    cleanText = cleanText.replace(/!\[.*?\]\(.*?\)/g, '') // Images
+    cleanText = cleanText.replace(/\[.*?\]\(.*?\)/g, '') // Links
+
+    // Remove bold, italic, and strikethrough formatting
+    cleanText = cleanText.replace(/\*\*([^*]+)\*\*/g, '$1') // Bold
+    cleanText = cleanText.replace(/\*([^*]+)\*/g, '$1') // Italic
+    cleanText = cleanText.replace(/~~([^~]+)~~/g, '$1') // Strikethrough
+
+    // Remove headers
+    cleanText = cleanText.replace(/^#{1,6}\s+/gm, '')
+
+    // Remove blockquotes
+    cleanText = cleanText.replace(/^>\s+/gm, '')
+
+    // Remove horizontal rules
+    cleanText = cleanText.replace(/^---+/gm, '')
+
+    // Remove remaining Markdown symbols (bullets, etc.)
+    cleanText = cleanText.replace(/^\s*[-*+]\s+/gm, '')
+
+    return cleanText.trim()
+  }
   const get_each_sentence = (phrase: string) => {
     const endofSentenceRegex = /([^\.\?\!]+[\.\?\!])/g
     const sentences = phrase.match(endofSentenceRegex) || [] // Match sentences with punctuation
@@ -151,7 +184,7 @@ export function Chat({ id }: ChatProps) {
 
   async function playText({ text }: { text: string }) {
     const audiB = await fetch_and_play_audio({
-      text: text
+      text: cleanup_markdown_from_text({ markdownText: text })
     })
     setTextResponse(text)
     setAudioBuffer(audiB as any)
@@ -182,7 +215,7 @@ export function Chat({ id }: ChatProps) {
         }
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
-            text: sentence
+            text: cleanup_markdown_from_text({ markdownText: sentence })
           })
           setTextResponse(sentence)
           setAudioBuffer(audiB as any)
