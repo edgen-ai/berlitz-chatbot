@@ -90,21 +90,31 @@ const MessageList = ({
   onStartRecording: Function
   onStopRecording: Function
   isRecording: boolean
-}) => (
-  <div className="flex flex-col gap-1 p-2 overflow-auto grow">
-    {messages.map((message: any, index: number) =>
-      index > 0 ? (
-        <Message
-          key={index}
-          message={message}
-          onStartRecording={onStartRecording}
-          onStopRecording={onStopRecording}
-          isRecording={isRecording}
-        />
-      ) : null
-    )}
-  </div>
-)
+}) => {
+  // scroll to bottom on new message
+  useEffect(() => {
+    const chatPanel = document.querySelector('#message-list')
+    chatPanel?.scrollTo(0, chatPanel.scrollHeight)
+  }, [messages])
+  return (
+    <div
+      className="flex flex-col gap-1 p-2 overflow-auto grow"
+      id="message-list"
+    >
+      {messages.map((message: any, index: number) =>
+        index > 0 ? (
+          <Message
+            key={index}
+            message={message}
+            onStartRecording={onStartRecording}
+            onStopRecording={onStopRecording}
+            isRecording={isRecording}
+          />
+        ) : null
+      )}
+    </div>
+  )
+}
 export function ChatPanel({
   setIsChatOpen,
   messages,
