@@ -3928,6 +3928,43 @@ class TalkingHead {
       this.audioReverbNode.buffer = impulse
     }
   }
+  trimAudioBuffer(audioContext, audioBuffer) {
+    // Estimate where to trim based on silence (you can adjust this logic)
+    // Example: Trim any sections after a significant portion of silence
+    const threshold = 0.01 // Set a silence threshold
+    const channelData = audioBuffer.getChannelData(0) // Analyze the first channel
+    let lastNonSilentIndex = 0
+
+    // Find the last non-silent sample in the buffer
+    for (let i = channelData.length - 1; i >= 0; i--) {
+      if (Math.abs(channelData[i]) > threshold) {
+        lastNonSilentIndex = i
+        break
+      }
+    }
+
+    // Calculate the new duration based on the last non-silent sample
+    const newDurationInSamples = lastNonSilentIndex + 1
+
+    // Create a new buffer with the trimmed duration
+    const trimmedAudioBuffer = audioContext.createBuffer(
+      audioBuffer.numberOfChannels,
+      newDurationInSamples,
+      audioBuffer.sampleRate
+    )
+
+    // Copy the trimmed data into the new buffer
+    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+      const originalChannelData = audioBuffer.getChannelData(channel)
+      const trimmedChannelData = trimmedAudioBuffer.getChannelData(channel)
+
+      trimmedChannelData.set(
+        originalChannelData.subarray(0, newDurationInSamples)
+      )
+    }
+
+    return trimmedAudioBuffer
+  }
 
   /**
    * Set audio gain.
@@ -4113,6 +4150,7 @@ class TalkingHead {
         // Convert from PCM samples
         let buf = this.concatArrayBuffers(item.audio)
         audio = this.pcmToAudioBuffer(buf)
+        audio = this.trimAudioBuffer(this.audioCtx, audio)
       } else {
         audio = item.audio
       }
