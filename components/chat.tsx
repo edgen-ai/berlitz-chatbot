@@ -201,17 +201,15 @@ export function Chat({ id }: ChatProps) {
         const sentences = get_each_sentence(lastMessage.content)
         if (
           typeof pronunciation_exercise !== 'string' &&
+          Array.isArray(pronunciation_exercise) &&
           pronunciation_exercise.length > 0 &&
-          pronunciation_exercise[0]
+          pronunciation_exercise[0]?.content
         ) {
-          setMessages([
-            ...messages,
-            {
-              role: 'assistant',
-              content: `Try to say ${pronunciation_exercise[0].content}`,
-              id: 'pronunciation'
-            }
-          ])
+          append({
+            role: 'assistant',
+            content: `Try to say ${pronunciation_exercise[0].content}`,
+            id: 'pronunciation'
+          })
         }
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
