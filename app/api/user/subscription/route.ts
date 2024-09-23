@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from('users')
       .select('subscription, plan_type, billing_date, auth_method, id')
-      .eq('firebase_id', userId)
+      .eq('id', userId)
       .single()
 
     // Log the response or error from Supabase
