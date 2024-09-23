@@ -15,6 +15,7 @@ import { useBackground } from '@/lib/hooks/background-context'
 import { useClass } from '@/lib/hooks/class-context'
 import Backgrounds from '@/public/data/backgrounds'
 import { ChatPanel } from './chat-panel'
+import { process_script } from '@/lib/api/process_script'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -32,7 +33,6 @@ export function Chat({ id }: ChatProps) {
   const [localClassType, setLocalClassType] = useState('2')
   const [isChatOpen, setIsChatOpen] = useState(true)
   const [isResponding, setIsResponding] = useState(false)
-
 
   // https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
   let {
@@ -101,7 +101,40 @@ export function Chat({ id }: ChatProps) {
       console.log('Stopped listening for speech.')
     }
   }, [isResponding, isEditing, browserSupportsSpeechRecognition])
+  const cleanup_markdown_from_text = ({
+    markdownText
+  }: {
+    markdownText: string
+  }) => {
+    let cleanText = markdownText
 
+    // Remove code blocks and inline code
+    cleanText = cleanText.replace(/`{3}[\s\S]+?`{3}/g, '') // Code blocks
+    cleanText = cleanText.replace(/`[^`]+`/g, '') // Inline code
+
+    // Remove images and links
+    cleanText = cleanText.replace(/!\[.*?\]\(.*?\)/g, '') // Images
+    cleanText = cleanText.replace(/\[.*?\]\(.*?\)/g, '') // Links
+
+    // Remove bold, italic, and strikethrough formatting
+    cleanText = cleanText.replace(/\*\*([^*]+)\*\*/g, '$1') // Bold
+    cleanText = cleanText.replace(/\*([^*]+)\*/g, '$1') // Italic
+    cleanText = cleanText.replace(/~~([^~]+)~~/g, '$1') // Strikethrough
+
+    // Remove headers
+    cleanText = cleanText.replace(/^#{1,6}\s+/gm, '')
+
+    // Remove blockquotes
+    cleanText = cleanText.replace(/^>\s+/gm, '')
+
+    // Remove horizontal rules
+    cleanText = cleanText.replace(/^---+/gm, '')
+
+    // Remove remaining Markdown symbols (bullets, etc.)
+    cleanText = cleanText.replace(/^\s*[-*+]\s+/gm, '')
+
+    return cleanText.trim()
+  }
   const get_each_sentence = (phrase: string) => {
     const endofSentenceRegex = /([^\.\?\!]+[\.\?\!])/g
     const sentences = phrase.match(endofSentenceRegex) || [] // Match sentences with punctuation
@@ -133,26 +166,25 @@ export function Chat({ id }: ChatProps) {
 
     return mergedSentences
   }
-  
-  const extractPronunciationContent = (text:string) => {
+
+  const extractPronunciationContent = (text: string) => {
     // Regex to match content between <pronunciation> and </pronunciation>, including multiline content
-    const pronunciationRegex = /<pronunciation>([\s\S]*?)<\/pronunciation>/g;
-    const pronunciationMatches = [];
-    let match;
+    const pronunciationRegex = /<pronunciation>([\s\S]*?)<\/pronunciation>/g
+    const pronunciationMatches = []
+    let match
 
     // Loop through all matches and extract content between the tags
     while ((match = pronunciationRegex.exec(text)) !== null) {
-        pronunciationMatches.push(match[1].trim()); // Push the matched content (trimmed) into the array
+      pronunciationMatches.push(match[1].trim()) // Push the matched content (trimmed) into the array
     }
 
     // Return the matches or a message if no tags are found
-    return pronunciationMatches.length > 0 ? pronunciationMatches : text;
-};
-
+    return pronunciationMatches.length > 0 ? pronunciationMatches : text
+  }
 
   async function playText({ text }: { text: string }) {
     const audiB = await fetch_and_play_audio({
-      text: text
+      text: cleanup_markdown_from_text({ markdownText: text })
     })
     setTextResponse(text)
     setAudioBuffer(audiB as any)
@@ -164,19 +196,28 @@ export function Chat({ id }: ChatProps) {
       }
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
-        const pronunciation_exercise = extractPronunciationContent(lastMessage.content)
-        if (typeof(pronunciation_exercise) !== "string") {
-          setMessages([...messages, {
-            role: 'assistant', content: pronunciation_exercise[0],
-            id: ''
-          }])
-        }
+        const { cleanText: clean_script, exercises: pronunciation_exercise } =
+          process_script(lastMessage.content)
         const sentences = get_each_sentence(lastMessage.content)
+        if (
+          typeof pronunciation_exercise !== 'string' &&
+          Array.isArray(pronunciation_exercise) &&
+          pronunciation_exercise.length > 0 &&
+          pronunciation_exercise[0]?.content
+        ) {
+          append({
+            role: 'assistant',
+            content: `Try to say ${pronunciation_exercise[0].content}`,
+            id: 'pronunciation'
+          })
+        }
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
-            text: sentence
+            text: cleanup_markdown_from_text({ markdownText: sentence })
           })
-          setTextResponse(sentence)
+          setTextResponse(
+            cleanup_markdown_from_text({ markdownText: sentence })
+          )
           setAudioBuffer(audiB as any)
         }
       }
@@ -213,6 +254,8 @@ export function Chat({ id }: ChatProps) {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto' // Reset the height
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px` // Adjust based on scroll height
+      // Scroll to the bottom of the textarea
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight
     }
   }
 
@@ -223,7 +266,7 @@ export function Chat({ id }: ChatProps) {
     handleInputChange(event) // Allow manual editing of the input
   }
   const ClassTitle = () => (
-    <span className="text-2xl font-semibold text-center">
+    <span className="text-md md:text-2xl font-semibold text-center">
       {
         classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
           ?.description
@@ -236,8 +279,8 @@ export function Chat({ id }: ChatProps) {
       <div className="flex items-start justify-start width-full">
         <ClassTitle />
       </div>
-      <div className="flex size-full justify-between">
-        <div className="relative h-full w-1/2">
+      <div className="flex size-full justify-between flex-col md:flex-row scrollbar-thin scrollbar-thumb-primary-foreground scrollbar-track-primary-darker min-h-0">
+        <div className="relative h-1/3 md:h-full md:w-1/2">
           <Image
             src={
               selectedBackground &&
@@ -258,7 +301,7 @@ export function Chat({ id }: ChatProps) {
             setIsResponding={setIsResponding}
           />
         </div>
-        <div className="px-2 max-w-2xl w-1/2">
+        <div className="px-2 max-w-2xl h-2/3 w-full md:w-1/2 md:h-full">
           {isChatOpen ? (
             <ChatPanel
               setIsChatOpen={setIsChatOpen}

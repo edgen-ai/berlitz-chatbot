@@ -16,7 +16,7 @@ export function SidebarDesktop() {
         <ChatHistory />
       </Sidebar>
       {isSidebarOpen ? (
-        <div className="fixed inset-0 z-20 bg-zinc-400 opacity-50 top-10" />
+        <div className="fixed inset-0 z-20 bg-zinc-400 opacity-50 top-10 hidden md:block" />
       ) : null}
     </>
   )

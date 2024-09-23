@@ -48,7 +48,7 @@ const ChatInput = ({
     <AttachButton />
     <Textarea
       style={{ resize: 'none' }}
-      className="dark:bg-primary dark:text-primary-foreground"
+      className="dark:bg-primary dark:text-primary-foreground max-h-16 leading-5 overflow-y-auto"
       name="prompt"
       value={input} // Always keep the input updated
       onChange={handleTextareaChange}
@@ -90,26 +90,31 @@ const MessageList = ({
   onStartRecording: Function
   onStopRecording: Function
   isRecording: boolean
-}) => (
-  <div
-    style={{
-      flex: '1',
-      overflowY: 'auto' // Scrollable
-    }}
-  >
-    {messages.map((message: any, index: number) =>
-      index > 0 ? (
-        <Message
-          key={index}
-          message={message}
-          onStartRecording={onStartRecording}
-          onStopRecording={onStopRecording}
-          isRecording={isRecording}
-        />
-      ) : null
-    )}
-  </div>
-)
+}) => {
+  // scroll to bottom on new message
+  useEffect(() => {
+    const chatPanel = document.querySelector('#message-list')
+    chatPanel?.scrollTo(0, chatPanel.scrollHeight)
+  }, [messages])
+  return (
+    <div
+      className="flex flex-col gap-1 p-2 overflow-auto grow"
+      id="message-list"
+    >
+      {messages.map((message: any, index: number) =>
+        index > 0 ? (
+          <Message
+            key={index}
+            message={message}
+            onStartRecording={onStartRecording}
+            onStopRecording={onStopRecording}
+            isRecording={isRecording}
+          />
+        ) : null
+      )}
+    </div>
+  )
+}
 export function ChatPanel({
   setIsChatOpen,
   messages,
@@ -287,13 +292,7 @@ export function ChatPanel({
   }, [messages, classTypes, selectedClass])
 
   return (
-    <div
-      className="flex flex-col justify-end width-full rounded-lg shadow-lg "
-      style={{
-        maxWidth: '50vw',
-        height: '85vh' // Fixed height
-      }}
-    >
+    <div className="flex flex-col justify-between width-full rounded-lg shadow-lg max-w-2xl h-full">
       <Chatheader setIsChatOpen={setIsChatOpen} />
       <MessageList
         messages={messages}
@@ -301,17 +300,19 @@ export function ChatPanel({
         onStopRecording={handleStopRecording}
         isRecording={isRecording}
       />
-      <ChatInput
-        onSubmit={onSubmit}
-        input={input}
-        handleTextareaChange={handleTextareaChange}
-        textareaRef={textareaRef}
-      />
-      <VocabularyList
-        selectedClass={selectedClass}
-        saidWords={saidWords}
-        playText={playText}
-      />
+      <div>
+        <ChatInput
+          onSubmit={onSubmit}
+          input={input}
+          handleTextareaChange={handleTextareaChange}
+          textareaRef={textareaRef}
+        />
+        <VocabularyList
+          selectedClass={selectedClass}
+          saidWords={saidWords}
+          playText={playText}
+        />
+      </div>
     </div>
   )
 }
