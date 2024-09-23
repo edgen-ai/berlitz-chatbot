@@ -5,7 +5,7 @@ import Textarea from 'react-textarea-autosize'
 
 import { useActions, useUIState } from 'ai/rsc'
 
-import { UserMessage } from './stocks/message'
+import { SystemMessage, UserMessage } from './stocks/message'
 import { type AI } from '@/lib/chat/actions'
 import { Button } from '@/components/ui/button'
 import { IconArrowElbow, IconPlus } from '@/components/ui/icons'
@@ -18,9 +18,7 @@ import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { nanoid } from 'nanoid'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import SpeechRecognition, {
-  useSpeechRecognition
-} from 'react-speech-recognition'
+import { process_script } from '@/lib/api/process_script'
 
 export function PromptForm({
   input,
@@ -58,27 +56,9 @@ export function PromptForm({
       callback: () => handleSubmit(input)
     }
   ]
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition
-  } = useSpeechRecognition({ commands })
 
-  useEffect(() => {
-    SpeechRecognition.startListening({ continuous: true })
-    return () => {
-      SpeechRecognition.stopListening()
-    }
-  }, [])
-  useEffect(() => {
-    console.log(transcript)
-    setInput(transcript)
-  }, [transcript, setInput])
   const handleSubmit = async (e: any) => {
     if (e && e.preventDefault) e?.preventDefault()
-    // reset dictation
-    resetTranscript()
     // Blur focus on mobile
     if (window.innerWidth < 600) {
       e.target['message']?.blur()
@@ -99,7 +79,8 @@ export function PromptForm({
 
     // Submit and get response message
     const responseMessage = await submitUserMessage(value)
-    setMessages(currentMessages => [...currentMessages, responseMessage])
+    const { cleanText: clean_script, exercises: pronunciation_exercise }  = process_script(responseMessage.display) 
+    setMessages(currentMessages => [...currentMessages, { id: `msg_${currentMessages.length + 1}`, display:<SystemMessage>{clean_script}</SystemMessage>}])
   }
 
   return (
