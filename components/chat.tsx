@@ -30,7 +30,7 @@ export function Chat({ id }: ChatProps) {
   )
   const [textResponse, setTextResponse] = useState('')
   const [isEditing, setIsEditing] = useState(false)
-  const [localClassType, setLocalClassType] = useState('2')
+  const [localClassType, setLocalClassType] = useState('1')
   const [isChatOpen, setIsChatOpen] = useState(true)
   const [isResponding, setIsResponding] = useState(false)
 
@@ -196,23 +196,9 @@ export function Chat({ id }: ChatProps) {
       }
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
-        const { cleanText: clean_script, exercises: pronunciation_exercise } =
-          process_script(lastMessage.content)
+        //const { cleanText: clean_script, exercises: pronunciation_exercise } =  process_script(lastMessage.content)
         const sentences = get_each_sentence(lastMessage.content)
         // TODO use cleanText and exercises
-        if (
-          typeof pronunciation_exercise !== 'string' &&
-          Array.isArray(pronunciation_exercise) &&
-          pronunciation_exercise.length > 0 &&
-          pronunciation_exercise[0]?.content &&
-          sentences.length > 10
-        ) {
-          append({
-            role: 'assistant',
-            content: `Try to say ${pronunciation_exercise[0].content}`,
-            id: 'pronunciation'
-          })
-        }
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
             text: cleanup_markdown_from_text({ markdownText: sentence })
