@@ -199,11 +199,13 @@ export function Chat({ id }: ChatProps) {
         const { cleanText: clean_script, exercises: pronunciation_exercise } =
           process_script(lastMessage.content)
         const sentences = get_each_sentence(lastMessage.content)
+        // TODO use cleanText and exercises
         if (
           typeof pronunciation_exercise !== 'string' &&
           Array.isArray(pronunciation_exercise) &&
           pronunciation_exercise.length > 0 &&
-          pronunciation_exercise[0]?.content
+          pronunciation_exercise[0]?.content &&
+          sentences.length > 10
         ) {
           append({
             role: 'assistant',
