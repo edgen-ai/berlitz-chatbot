@@ -74,7 +74,7 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
               <FormLabel>Max Tokens - {field.value}</FormLabel>
               <FormControl>
                 <Slider
-                  min={0}
+                  min={200}
                   max={1000}
                   step={50}
                   defaultValue={[field.value]}
@@ -117,10 +117,17 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
           control={form.control}
           name="stream"
           render={({ field }) => (
-            <Label>
-              <input type="checkbox" {...field} className="form-checkbox" />
-              <span className="ml-2">Stream</span>
-            </Label>
+            <FormItem>
+              <FormLabel>Stream</FormLabel>
+              <FormControl>
+                <input type="checkbox" {...field} checked={field.value} />
+              </FormControl>
+              <FormDescription>
+                Whether to stream the response from the model, or get the full
+                response at once.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
           )}
         />
         <div className="flex justify-end">
