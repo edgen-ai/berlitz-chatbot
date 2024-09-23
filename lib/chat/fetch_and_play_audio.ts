@@ -1,6 +1,6 @@
 function clean_text(text: string): string {
-  // Remove asterisks, colons, and semicolons
-  text = text.replace(/[\*\:\;]/g, '')
+  // Remove everything except letters, digits, whitespace, period, comma, question mark, and exclamation point
+  text = text.replace(/[^a-zA-Z0-9\s.,?!]/g, '')
 
   // Replace numbers with their word equivalents
   text = text.replace(/\b\d+\b/g, function (match: string): string {
@@ -92,6 +92,7 @@ function threeDigitToWords(n: number): string {
 
   return words
 }
+
 
 export default async function fetch_and_play_audio({ text }: { text: string }) {
   const SERVER_URL =
