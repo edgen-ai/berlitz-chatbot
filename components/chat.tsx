@@ -16,6 +16,16 @@ import { useClass } from '@/lib/hooks/class-context'
 import Backgrounds from '@/public/data/backgrounds'
 import { ChatPanel } from './chat-panel'
 import { process_script } from '@/lib/api/process_script'
+import { Dialog } from '@radix-ui/react-dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from './ui/alert-dialog'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -33,7 +43,7 @@ export function Chat({ id }: ChatProps) {
   const [localClassType, setLocalClassType] = useState('1')
   const [isChatOpen, setIsChatOpen] = useState(true)
   const [isResponding, setIsResponding] = useState(false)
-
+  const [initialDialogOpen, setInitialDialogOpen] = useState(true)
   const { selectedBackground } = useBackground()
   const { selectedClass } = useClass()
 
@@ -64,10 +74,10 @@ export function Chat({ id }: ChatProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null) // Ref for the textarea
 
   useEffect(() => {
-    if (messages.length === 0) {
+    if (messages.length === 0 && !initialDialogOpen) {
       append({ role: 'user', content: "Hello, let's start the class!" })
     }
-  }, [append, messages])
+  }, [append, messages, initialDialogOpen])
 
   useEffect(() => {
     setLocalClassType(selectedClass)
@@ -265,6 +275,24 @@ export function Chat({ id }: ChatProps) {
 
   return (
     <div className="flex flex-col size-full ">
+      <AlertDialog open={initialDialogOpen} onOpenChange={setInitialDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Class starting</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will start{' '}
+              {
+                classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
+                  ?.description
+              }{' '}
+              class
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div className="flex items-start justify-start width-full">
         <ClassTitle />
       </div>
