@@ -34,6 +34,9 @@ export function Chat({ id }: ChatProps) {
   const [isChatOpen, setIsChatOpen] = useState(true)
   const [isResponding, setIsResponding] = useState(false)
 
+  const { selectedBackground } = useBackground()
+  const { selectedClass } = useClass()
+
   // https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
   let {
     messages,
@@ -46,7 +49,7 @@ export function Chat({ id }: ChatProps) {
     append
   } = useChat({
     body: {
-      classType: localClassType
+      classType: selectedClass || localClassType || '1'
     }
   })
 
@@ -56,8 +59,6 @@ export function Chat({ id }: ChatProps) {
     browserSupportsSpeechRecognition,
     listening
   } = useSpeechRecognition()
-  const { selectedBackground } = useBackground()
-  const { selectedClass } = useClass()
 
   const lastAiMessageRef = useRef<Message | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null) // Ref for the textarea
