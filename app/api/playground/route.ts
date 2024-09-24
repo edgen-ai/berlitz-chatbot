@@ -5,16 +5,14 @@ export async function POST(req: Request, res: Response) {
   const {
     prompt,
     sysPrompt,
-    data
+    temperature,
+    maxTokens
   }: {
     prompt: string
     sysPrompt: string
-    data: {
-      temperature: number
-      maxTokens: number
-    }
+    temperature: number
+    maxTokens: number
   } = await req.json()
-  console.log('Data', prompt)
   const groq = createOpenAI({
     baseURL: 'https://api.groq.com/openai/v1',
     apiKey: process.env.GROQ_API_KEY
@@ -23,8 +21,8 @@ export async function POST(req: Request, res: Response) {
     model: groq('llama3-8b-8192'),
     system: sysPrompt,
     prompt,
-    temperature: data.temperature,
-    maxTokens: data.maxTokens
+    temperature,
+    maxTokens
   })
 
   return result.toDataStreamResponse()

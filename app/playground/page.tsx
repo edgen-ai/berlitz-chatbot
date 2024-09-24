@@ -46,8 +46,8 @@ export default function Playground() {
   const { completion, input, setInput, handleSubmit, isLoading } =
     useCompletion({
       body: {
-        temperature: form.getValues().temperature,
-        maxTokens: form.getValues().maxTokens
+        temperature: form.getValues('temperature'),
+        maxTokens: form.getValues('maxTokens')
       },
       api: '/api/playground'
     })
@@ -119,7 +119,7 @@ export default function Playground() {
               </CardFooter>
             </Card>
           ) : null}
-          <OutputList completions={completions} isLoading={isLoading} />
+          <OutputList completions={completions} />
         </div>
       </div>
     </main>
