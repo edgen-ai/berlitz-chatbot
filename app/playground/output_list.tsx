@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+
 const OutputList = ({
   completions
 }: {
@@ -43,8 +44,7 @@ const OutputList = ({
               <CardFooter>
                 <p>
                   Time taken:{' '}
-                  {completion.endTimestamp - completion.startTimestamp}
-                  ms
+                  {completion.endTimestamp - completion.startTimestamp} ms
                 </p>
               </CardFooter>
             </TooltipTrigger>
@@ -59,7 +59,7 @@ const OutputList = ({
                   minute: 'numeric',
                   second: 'numeric',
                   timeZoneName: 'short'
-                }).format(new Date(completion.endTimestamp))}{' '}
+                }).format(new Date(completion.startTimestamp))}
               </p>
               <p>
                 End:{' '}
@@ -71,7 +71,7 @@ const OutputList = ({
                   minute: 'numeric',
                   second: 'numeric',
                   timeZoneName: 'short'
-                }).format(new Date(completion.startTimestamp))}{' '}
+                }).format(new Date(completion.endTimestamp))}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -80,4 +80,5 @@ const OutputList = ({
     </div>
   )
 }
+
 export default OutputList
