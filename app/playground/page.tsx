@@ -46,8 +46,8 @@ export default function Playground() {
   const { completion, input, setInput, handleSubmit, isLoading } =
     useCompletion({
       body: {
-        temperature: form.getValues('temperature'),
-        maxTokens: form.getValues('maxTokens')
+        temperature: form.getValues('temperature').toString(),
+        maxTokens: form.getValues('maxTokens').toString()
       },
       api: '/api/playground'
     })
@@ -97,27 +97,31 @@ export default function Playground() {
           />
           <h2 className="text-2xl font-bold">Output</h2>
           {isLoading ? (
-            <Card className="border border-gray-300 rounded p-2 m-2 animate-pulse">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Loading...</CardTitle>
-                <CardDescription>
+            <div className="flex flex-col-reverse gap-2 my-1">
+              <Card className="border border-gray-300 rounded p-2 animate-pulse">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">
+                    Loading...
+                  </CardTitle>
+                  <CardDescription>
+                    <Skeleton className="h-4 w-full mb-2" />{' '}
+                    {/* Placeholder for input */}
+                    <Skeleton className="h-4 w-3/4" />{' '}
+                    {/* Placeholder for more content */}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
                   <Skeleton className="h-4 w-full mb-2" />{' '}
-                  {/* Placeholder for input */}
+                  {/* Placeholder for content */}
                   <Skeleton className="h-4 w-3/4" />{' '}
                   {/* Placeholder for more content */}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-full mb-2" />{' '}
-                {/* Placeholder for content */}
-                <Skeleton className="h-4 w-3/4" />{' '}
-                {/* Placeholder for more content */}
-              </CardContent>
-              <CardFooter>
-                <Skeleton className="h-4 w-1/4" />{' '}
-                {/* Placeholder for time taken */}
-              </CardFooter>
-            </Card>
+                </CardContent>
+                <CardFooter>
+                  <Skeleton className="h-4 w-1/4" />{' '}
+                  {/* Placeholder for time taken */}
+                </CardFooter>
+              </Card>
+            </div>
           ) : null}
           <OutputList completions={completions} />
         </div>
