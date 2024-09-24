@@ -30,7 +30,7 @@ interface BackgroundProviderProps {
 // BackgroundProvider component
 export function BackgroundProvider({ children }: BackgroundProviderProps) {
   const [selectedBackground, setSelectedBackground] =
-    React.useState<string>('0')
+    React.useState<string>('1')
 
   const handleSetSelectedBackground = (id: string) => {
     setSelectedBackground(id)

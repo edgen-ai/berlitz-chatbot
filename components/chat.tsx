@@ -16,6 +16,16 @@ import { useClass } from '@/lib/hooks/class-context'
 import Backgrounds from '@/public/data/backgrounds'
 import { ChatPanel } from './chat-panel'
 import { process_script } from '@/lib/api/process_script'
+import { Dialog } from '@radix-ui/react-dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from './ui/alert-dialog'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -30,9 +40,12 @@ export function Chat({ id }: ChatProps) {
   )
   const [textResponse, setTextResponse] = useState('')
   const [isEditing, setIsEditing] = useState(false)
-  const [localClassType, setLocalClassType] = useState('2')
+  const [localClassType, setLocalClassType] = useState('1')
   const [isChatOpen, setIsChatOpen] = useState(true)
   const [isResponding, setIsResponding] = useState(false)
+  const [initialDialogOpen, setInitialDialogOpen] = useState(true)
+  const { selectedBackground } = useBackground()
+  const { selectedClass } = useClass()
 
   // https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
   let {
@@ -46,7 +59,7 @@ export function Chat({ id }: ChatProps) {
     append
   } = useChat({
     body: {
-      classType: localClassType
+      classType: selectedClass || localClassType || '1'
     }
   })
 
@@ -56,17 +69,15 @@ export function Chat({ id }: ChatProps) {
     browserSupportsSpeechRecognition,
     listening
   } = useSpeechRecognition()
-  const { selectedBackground } = useBackground()
-  const { selectedClass } = useClass()
 
   const lastAiMessageRef = useRef<Message | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null) // Ref for the textarea
 
   useEffect(() => {
-    if (messages.length === 0) {
+    if (messages.length === 0 && !initialDialogOpen) {
       append({ role: 'user', content: "Hello, let's start the class!" })
     }
-  }, [append, messages])
+  }, [append, messages, initialDialogOpen])
 
   useEffect(() => {
     setLocalClassType(selectedClass)
@@ -222,22 +233,10 @@ export function Chat({ id }: ChatProps) {
       }
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
-        const { cleanText: clean_script, exercises: pronunciation_exercise } =
-          process_script(lastMessage.content)
+        //const { cleanText: clean_script, exercises: pronunciation_exercise } =  process_script(lastMessage.content)
         const sentences = get_each_sentence(lastMessage.content)
-        console.log('sentences', sentences)
-        if (
-          typeof pronunciation_exercise !== 'string' &&
-          Array.isArray(pronunciation_exercise) &&
-          pronunciation_exercise.length > 0 &&
-          pronunciation_exercise[0]?.content
-        ) {
-          append({
-            role: 'assistant',
-            content: `Try to say ${pronunciation_exercise[0].content}`,
-            id: 'pronunciation'
-          })
-        }
+
+        // TODO use cleanText and exercises
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
             text: cleanup_markdown_from_text({ markdownText: sentence })
@@ -303,6 +302,24 @@ export function Chat({ id }: ChatProps) {
 
   return (
     <div className="flex flex-col size-full ">
+      <AlertDialog open={initialDialogOpen} onOpenChange={setInitialDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Class starting</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will start{' '}
+              {
+                classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
+                  ?.description
+              }{' '}
+              class
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div className="flex items-start justify-start width-full">
         <ClassTitle />
       </div>

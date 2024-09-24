@@ -39,7 +39,7 @@ export function Header() {
         <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
           <UserOrLogin />
         </React.Suspense>
-        <h1 className="text-lg font-bold">Edgen AI Demo</h1>
+        <h1 className="text-lg font-bold">Edgen AI - Berlitz Demo</h1>
       </div>
       <div className="flex items-center justify-end space-x-2"></div>
     </header>
