@@ -7,15 +7,7 @@ import { useForm } from 'react-hook-form'
 import SettingsForm from './settings_form'
 import { useEffect, useState } from 'react'
 import OutputList from './output_list'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
+import LoadingCard from './loading_card'
 export default function Playground() {
   const [completions, setCompletions] = useState<
     {
@@ -96,33 +88,7 @@ export default function Playground() {
             }}
           />
           <h2 className="text-2xl font-bold">Output</h2>
-          {isLoading ? (
-            <div className="flex flex-col-reverse gap-2 my-1">
-              <Card className="border border-gray-300 rounded p-2 animate-pulse">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">
-                    Loading...
-                  </CardTitle>
-                  <CardDescription>
-                    <Skeleton className="h-4 w-full mb-2" />{' '}
-                    {/* Placeholder for input */}
-                    <Skeleton className="h-4 w-3/4" />{' '}
-                    {/* Placeholder for more content */}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-4 w-full mb-2" />{' '}
-                  {/* Placeholder for content */}
-                  <Skeleton className="h-4 w-3/4" />{' '}
-                  {/* Placeholder for more content */}
-                </CardContent>
-                <CardFooter>
-                  <Skeleton className="h-4 w-1/4" />{' '}
-                  {/* Placeholder for time taken */}
-                </CardFooter>
-              </Card>
-            </div>
-          ) : null}
+          {isLoading ? <LoadingCard /> : null}
           <OutputList completions={completions} />
         </div>
       </div>
