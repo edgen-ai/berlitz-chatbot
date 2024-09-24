@@ -38,24 +38,24 @@ export function PromptForm({
       inputRef.current.focus()
     }
   }, [])
-  const commands = [
-    {
-      command: 'Send (message)',
-      callback: () => handleSubmit(input)
-    },
-    {
-      command: 'Send (messages)',
-      callback: () => handleSubmit(input)
-    },
-    {
-      command: 'Enviar (mensaje)',
-      callback: () => handleSubmit(input)
-    },
-    {
-      command: 'Enviar (mensajes)',
-      callback: () => handleSubmit(input)
-    }
-  ]
+  // const commands = [
+  //   {
+  //     command: 'Send (message)',
+  //     callback: () => handleSubmit(input)
+  //   },
+  //   {
+  //     command: 'Send (messages)',
+  //     callback: () => handleSubmit(input)
+  //   },
+  //   {
+  //     command: 'Enviar (mensaje)',
+  //     callback: () => handleSubmit(input)
+  //   },
+  //   {
+  //     command: 'Enviar (mensajes)',
+  //     callback: () => handleSubmit(input)
+  //   }
+  // ]
 
   const handleSubmit = async (e: any) => {
     if (e && e.preventDefault) e?.preventDefault()
@@ -68,6 +68,7 @@ export function PromptForm({
     setInput('')
     if (!value) return
 
+    console.log('User message:', value)
     // Optimistically add user message UI
     setMessages(currentMessages => [
       ...currentMessages,
@@ -77,10 +78,11 @@ export function PromptForm({
       }
     ])
 
+
     // Submit and get response message
-    const responseMessage = await submitUserMessage(value)
-    const { cleanText: clean_script, exercises: pronunciation_exercise }  = process_script(responseMessage.display) 
-    setMessages(currentMessages => [...currentMessages, { id: `msg_${currentMessages.length + 1}`, display:<SystemMessage>{clean_script}</SystemMessage>}])
+    // const responseMessage = await submitUserMessage(value)
+    // const { cleanText: clean_script, exercises: pronunciation_exercise }  = process_script(responseMessage.display) 
+    // setMessages(currentMessages => [...currentMessages, { id: `msg_${currentMessages.length + 1}`, display:<SystemMessage>{clean_script}</SystemMessage>}])
   }
 
   return (

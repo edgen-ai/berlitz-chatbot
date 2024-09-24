@@ -134,6 +134,7 @@ export function ChatPanel({
   const audioChunksRef = useRef<Blob[]>([])
 
   // Function to start recording
+  // Function to start recording
   const handleStartRecording = async (textToPronounce: string) => {
     setIsRecording(true)
     setExpectedText(textToPronounce)
@@ -141,7 +142,25 @@ export function ChatPanel({
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      mediaRecorderRef.current = new MediaRecorder(stream)
+
+      // Determine supported mime type
+      const getSupportedMimeType = () => {
+        const possibleTypes = [
+          'audio/webm;codecs=opus',
+          'audio/ogg;codecs=opus',
+          'audio/webm',
+          'audio/ogg'
+        ]
+        for (const mimeType of possibleTypes) {
+          if (MediaRecorder.isTypeSupported(mimeType)) {
+            return mimeType
+          }
+        }
+        return ''
+      }
+
+      const options = { mimeType: getSupportedMimeType() }
+      mediaRecorderRef.current = new MediaRecorder(stream, options)
 
       mediaRecorderRef.current.ondataavailable = event => {
         audioChunksRef.current.push(event.data)
@@ -153,12 +172,22 @@ export function ChatPanel({
         stream.getTracks().forEach(track => track.stop())
 
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: 'audio/wav'
+          type: mediaRecorderRef.current!.mimeType
         })
-        const audioFile = new File([audioBlob], 'recording.wav', {
-          type: 'audio/wav'
+
+        // Determine file extension based on mime type
+        const mimeType = mediaRecorderRef.current!.mimeType
+        let extension = 'webm'
+        if (mimeType.includes('ogg')) {
+          extension = 'ogg'
+        } else if (mimeType.includes('wav')) {
+          extension = 'wav'
+        }
+
+        const audioFile = new File([audioBlob], `recording.${extension}`, {
+          type: mimeType
         })
-        const evaluationResult = await evaluateAudio(audioFile, expectedText)
+        const evaluationResult = await evaluateAudio(audioFile, textToPronounce)
 
         // Update messages with evaluation result
         setMessages((messages: any) => [
@@ -166,6 +195,7 @@ export function ChatPanel({
           {
             role: 'assistant',
             content: evaluationResult.coloredText,
+            accuracy: evaluationResult.accuracyScore,
             id: ''
           }
         ])
@@ -207,8 +237,10 @@ export function ChatPanel({
 
     const formData = new FormData()
     formData.append('file', file)
+    formData.append('title', transcription)
     formData.append('transcription', transcription)
     formData.append('language', 'en')
+    console.log('formData', formData.get('file'))
 
     try {
       const response = await fetch(apiUrl, {
@@ -221,25 +253,39 @@ export function ChatPanel({
       }
 
       const data = await response.json()
-      console.log(data)
-
       const realTranscript = data.real_transcript
       const letterCorrectness = data.is_letter_correct_all_words
         .trim()
         .split(' ')
+      const letterCorrectnessArray = letterCorrectness
+      const words = realTranscript.split(' ')
+      if (words.length > letterCorrectnessArray.length) {
+        const difference = words.length - letterCorrectnessArray.length
+        for (let i = 0; i < difference; i++) {
+          letterCorrectnessArray.unshift('')
+        }
+      }
       const pronunciationAccuracy = data.pronunciation_accuracy
 
       // Generate colored transcript based on the correctness
-      const coloredText = realTranscript
-        .split('')
-        .map((letter: string, index: number) => {
-          const isCorrect = letterCorrectness[index] === '1'
-          return isCorrect
-            ? `<span style="color: green">${letter}</span>`
-            : `<span style="color: red">${letter}</span>`
-        })
-        .join('')
-
+      let coloredText = ''
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i]
+        const correctness = letterCorrectnessArray[i] || ''
+        for (let j = 0; j < word.length; j++) {
+          const letter = word[j]
+          if (correctness && correctness[j] !== undefined) {
+            const isCorrect = correctness[j] === '1'
+            coloredText += isCorrect
+              ? `<span style="color: green">${letter}</span>`
+              : `<span style="color: red">${letter}</span>`
+          } else {
+            // If there's no correctness data, display the letter in default color
+            coloredText += `<span>${letter}</span>`
+          }
+        }
+        coloredText += ' ' // Add space between words
+      }
       return {
         accuracyScore: pronunciationAccuracy,
         coloredText

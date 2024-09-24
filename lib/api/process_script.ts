@@ -22,10 +22,9 @@ function process_script(text: string): {
   function replaceExerciseTags(script: string): string {
     console.log('script', script)
     const replacementPhrasesExercise = [
-      '<esp>Ahora es tu turno.</esp>',
-      '<esp>Es tu turno inténtalo.</esp>',
-      '<esp>Es tu momento de intentarlo.</esp>',
-      '<esp>Es tu turno de intentarlo.</esp>'
+      'Go ahead and try to use the correct pronunciation.',
+      'Now, it is your turn to try the pronunciation.',
+      'Please give the pronunciation a try.',
     ]
 
     const replacementPhrasesFill = [

@@ -222,9 +222,11 @@ export function Chat({ id }: ChatProps) {
       }
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
+
         const { cleanText: clean_script, exercises: pronunciation_exercise } =
           process_script(lastMessage.content)
-        const sentences = get_each_sentence(lastMessage.content)
+        console.log(clean_script)
+        const sentences = get_each_sentence(clean_script)
         console.log('sentences', sentences)
         if (
           typeof pronunciation_exercise !== 'string' &&
@@ -234,7 +236,7 @@ export function Chat({ id }: ChatProps) {
         ) {
           append({
             role: 'assistant',
-            content: `Try to say ${pronunciation_exercise[0].content}`,
+            content: `${pronunciation_exercise[0].content}`,
             id: 'pronunciation'
           })
         }

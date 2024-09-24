@@ -1,7 +1,27 @@
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import DOMPurify from 'dompurify';
 
-const Message = ({ key, message, onStartRecording, onStopRecording, isRecording }: {key:number , message:{role:string, content:string, id:string}, onStartRecording: Function, onStopRecording:Function, isRecording:boolean }) => {
+const Message = ({ key, message, onStartRecording, onStopRecording, isRecording, }: {key:number , message:{role:string, content:string, id:string, accuracy?:number }, onStartRecording: Function, onStopRecording:Function, isRecording:boolean}) => {
   const isPronunciation = message?.id === "pronunciation";
+  const contentWithoutPronunciation = message.content.replace(
+    /<pronunciation>.*?<\/pronunciation>/g,
+    ''
+  );
+
+  let containsHtml = false;
+  let html_element = '</';
+  let count = contentWithoutPronunciation.split(html_element).length - 1;
+  if (count > 3) {
+    containsHtml = true;
+  }
+
+  const accuracyDisplay =
+    message.accuracy !== undefined ? `Accuracy: ${message.accuracy}` : '';
+
+  const sanitizedContent = containsHtml
+    ? DOMPurify.sanitize(contentWithoutPronunciation)
+    : contentWithoutPronunciation;
 
   return (
     <div
@@ -44,9 +64,14 @@ const Message = ({ key, message, onStartRecording, onStopRecording, isRecording 
               {isRecording ? '■' : '🎤'}
             </button>
           </>
+        ) : containsHtml ? (
+          <ReactMarkdown rehypePlugins={[rehypeRaw as any]}>
+            {sanitizedContent} 
+          </ReactMarkdown>
         ) : (
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+          <ReactMarkdown>{sanitizedContent}</ReactMarkdown>
         )}
+        {accuracyDisplay && <div>{accuracyDisplay}</div>}
       </div>
     </div>
   );
