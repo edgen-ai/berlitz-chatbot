@@ -88,51 +88,6 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="topP"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Top P - {field.value}</FormLabel>
-              <FormControl>
-                <Slider
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  defaultValue={[field.value]}
-                  onValueChange={field.onChange}
-                />
-              </FormControl>
-              <FormDescription>
-                Limits the model to the smallest set of most probable words
-                whose combined probability adds up to a certain threshold (p),
-                ensuring diversity while avoiding unlikely outputs.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="stream"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Stream</FormLabel>
-              <FormControl>
-                <input type="checkbox" {...field} checked={field.value} />
-              </FormControl>
-              <FormDescription>
-                Whether to stream the response from the model, or get the full
-                response at once.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex justify-end">
-          <Button type="submit">Run</Button>
-        </div>
       </form>
     </Form>
   )
