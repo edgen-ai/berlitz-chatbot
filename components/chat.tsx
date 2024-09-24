@@ -147,36 +147,62 @@ export function Chat({ id }: ChatProps) {
     return cleanText.trim()
   }
   const get_each_sentence = (phrase: string) => {
-    const endofSentenceRegex = /([^\.\?\!]+[\.\?\!])/g
-    const sentences = phrase.match(endofSentenceRegex) || [] // Match sentences with punctuation
-
-    const mergedSentences: string[] = []
-    let tempSentence = ''
-    const min_words = 5
+    const endOfSentenceRegex = /([^\.\?\!]+[\.\?\!]+)/g;
+    const sentences = phrase.match(endOfSentenceRegex) || [];
+  
+    // Calculate word counts for each sentence
+    const wordCounts = sentences.map(sentence => sentence.trim().split(/\s+/).length);
+  
+    const chunks: string[] = [];
+    let currentChunkSentences: string[] = [];
+    let currentChunkWordCount = 0;
+    let prevChunkWordCount = 0;
+  
     for (let i = 0; i < sentences.length; i++) {
-      const wordCount = sentences[i].split(' ').length
-      // Accumulate sentence if it's under the word limit
-      if (wordCount < min_words) {
-        tempSentence += sentences[i]
-        continue
-      }
-
-      // Merge with accumulated sentences if needed
-      if (tempSentence) {
-        mergedSentences.push(tempSentence + ' ' + sentences[i])
-        tempSentence = '' // Clear temp after merging
+      const sentence = sentences[i];
+      const wordCount = wordCounts[i];
+  
+      currentChunkSentences.push(sentence);
+      currentChunkWordCount += wordCount;
+  
+      // If current chunk's word count is greater than previous chunk's word count, finalize the chunk
+      if (currentChunkWordCount > prevChunkWordCount) {
+        const chunk = currentChunkSentences.join(' ').trim();
+        chunks.push(chunk);
+  
+        // Update previous chunk word count
+        prevChunkWordCount = currentChunkWordCount;
+  
+        // Reset current chunk
+        currentChunkSentences = [];
+        currentChunkWordCount = 0;
       } else {
-        mergedSentences.push(sentences[i]) // Otherwise, push current sentence
+        // Continue adding sentences to current chunk
+        // Note: This may exceed the maximum number of sentences per chunk
       }
     }
-
-    // In case the last tempSentence was not added (if it has fewer than min_words)
-    if (tempSentence) {
-      mergedSentences.push(tempSentence.trim())
+  
+    // Add any remaining sentences to the last chunk
+    if (currentChunkSentences.length > 0) {
+      // Ensure the last chunk is larger than the previous one
+      if (currentChunkWordCount > prevChunkWordCount) {
+        const chunk = currentChunkSentences.join(' ').trim();
+        chunks.push(chunk);
+      } else {
+        // Merge with the previous chunk if it's not larger
+        if (chunks.length > 0) {
+          chunks[chunks.length - 1] += ' ' + currentChunkSentences.join(' ').trim();
+        } else {
+          // If there's no previous chunk, just add the current sentences
+          chunks.push(currentChunkSentences.join(' ').trim());
+        }
+      }
     }
-
-    return mergedSentences
-  }
+  
+    return chunks;
+  };
+  
+  
 
   const extractPronunciationContent = (text: string) => {
     // Regex to match content between <pronunciation> and </pronunciation>, including multiline content
@@ -198,7 +224,7 @@ export function Chat({ id }: ChatProps) {
       text: cleanup_markdown_from_text({ markdownText: text })
     })
     setTextResponse(text)
-    setAudioBuffer(audiB as any)
+    await setAudioBuffer(audiB as any)
   }
   useEffect(() => {
     async function getAudioAndPlay() {
@@ -209,6 +235,7 @@ export function Chat({ id }: ChatProps) {
         const lastMessage = messages[messages.length - 1]
         //const { cleanText: clean_script, exercises: pronunciation_exercise } =  process_script(lastMessage.content)
         const sentences = get_each_sentence(lastMessage.content)
+
         // TODO use cleanText and exercises
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
