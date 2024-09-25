@@ -26,18 +26,27 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
           control={form.control}
           name="model"
           render={({ field }) => (
-            <Label>
-              <Select name="model">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Model" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gpt2">Ruby</SelectItem>
-                  <SelectItem value="gpt3">Emerald</SelectItem>
-                  <SelectItem value="gpt4">Diamond</SelectItem>
-                </SelectContent>
-              </Select>
-            </Label>
+            <FormItem className="">
+              <FormLabel>Model</FormLabel>
+              <FormControl>
+                <Select name="model">
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gpt2">Ruby</SelectItem>
+                    <SelectItem value="gpt3">Emerald</SelectItem>
+                    <SelectItem value="gpt4">Diamond</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormDescription>
+                Pick the model you want to use for generating completions. We
+                have Ruby (7B), Emerald (13B), and Diamond (40B) models
+                available.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
           )}
         />
         <FormField
