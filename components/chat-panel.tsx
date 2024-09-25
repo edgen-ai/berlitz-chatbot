@@ -145,6 +145,7 @@ export function ChatPanel({
   const handleStartRecording = async (textToPronounce: string) => {
     setIsRecording(true)
     setIsRecordingChat(true)
+    console.log('setting recording chat')
     setExpectedText(textToPronounce)
     audioChunksRef.current = []
 
@@ -177,6 +178,7 @@ export function ChatPanel({
       mediaRecorderRef.current.onstop = async () => {
         setIsRecording(false)
         setIsRecordingChat(false)
+        console.log('recording stopped')
         // Stop all audio tracks
         stream.getTracks().forEach(track => track.stop())
 
@@ -266,7 +268,7 @@ export function ChatPanel({
       }
 
       const data = await response.json()
-      const realTranscript = data.real_transcript
+      const realTranscript = data.real_transcripts
       const letterCorrectnessRaw = data.is_letter_correct_all_words
       const letterCorrectness = data.is_letter_correct_all_words
         .trim()

@@ -22,9 +22,10 @@ function process_script(text: string): {
   function replaceExerciseTags(script: string): string {
     console.log('script', script)
     const replacementPhrasesExercise = [
-      'Go ahead and try to use the correct pronunciation.',
-      'Now, it is your turn to try the pronunciation.',
-      'Please give the pronunciation a try.',
+      // 'Go ahead and try to use the correct pronunciation.',
+      // 'Now, it is your turn to try the pronunciation.',
+      // 'Please give the pronunciation a try.',
+      ""
     ]
 
     const replacementPhrasesFill = [

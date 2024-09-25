@@ -42,7 +42,7 @@ export function Chat({ id }: ChatProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [localClassType, setLocalClassType] = useState('1')
   const [isChatOpen, setIsChatOpen] = useState(true)
-  const [isResponding, setIsResponding] = useState(false)
+  const [isResponding, setIsResponding] = useState(true)
   const [initialDialogOpen, setInitialDialogOpen] = useState(true)
   const { selectedBackground } = useBackground()
   const { selectedClass } = useClass()
@@ -252,6 +252,7 @@ export function Chat({ id }: ChatProps) {
           pronunciation_exercise.length > 0 &&
           pronunciation_exercise[0]?.content
         ) {
+          setIsRecordingChat(true)
           setMessages((messages: any) => [
             ...messages,
             {
