@@ -77,6 +77,7 @@ export default function Playground() {
       <ApiKeyDialog apiKey={apiKey} setApiKey={setApiKey} />
       <h1 className="text-3xl font-bold">Playground</h1>
       <p>This is a playground for testing our models.</p>
+      <p className="text-slate-500">Your API key is {apiKey}</p>
       <div className="flex size-full flex-col md:flex-row items-stretch gap-4">
         <div className="flex flex-col w-full md:w-1/3">
           <h2 className="text-2xl font-bold">Settings</h2>
