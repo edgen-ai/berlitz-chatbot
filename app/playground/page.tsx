@@ -22,7 +22,9 @@ export default function Playground() {
   const formSchema = z.object({
     model: z.enum(['gpt2', 'gpt3', 'gpt4']),
     temperature: z.number(),
-    maxTokens: z.number()
+    maxTokens: z.number(),
+    seed: z.number().optional(),
+    sysPrompt: z.string().optional()
   })
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,7 +41,9 @@ export default function Playground() {
     useCompletion({
       body: {
         temperature: form.getValues('temperature').toString(),
-        maxTokens: form.getValues('maxTokens').toString()
+        maxTokens: form.getValues('maxTokens').toString(),
+        seed: form.getValues('seed')?.toString(),
+        sysPrompt: form.getValues('sysPrompt')?.toString()
       },
       api: '/api/playground'
     })
@@ -63,12 +67,12 @@ export default function Playground() {
     <main className="flex flex-col p-4 size-full">
       <h1 className="text-3xl font-bold">Playground</h1>
       <p>This is a playground for testing our models.</p>
-      <div className="flex size-full items-stretch gap-4">
-        <div className="flex flex-col w-1/3">
+      <div className="flex size-full flex-col md:flex-row items-stretch gap-4">
+        <div className="flex flex-col w-full md:w-1/3">
           <h2 className="text-2xl font-bold">Settings</h2>
           <SettingsForm form={form} onSubmit={onSubmit} />
         </div>
-        <div className="flex flex-col w-2/3">
+        <div className="flex flex-col w-full md:w-2/3">
           <h2 className="text-2xl font-bold">Input</h2>
           <Textarea
             className="p-2 border border-gray-300 rounded bg-primary-foreground text-primary-background"

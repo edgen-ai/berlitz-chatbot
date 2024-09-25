@@ -7,7 +7,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
-import { Label } from '@/components/ui/label'
+
 import {
   Form,
   FormControl,
@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import { Button } from '@/components/ui/button'
+
 const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
   return (
     <Form {...form}>
@@ -92,6 +92,48 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
               </FormControl>
               <FormDescription>
                 Controls the maximum number of tokens generated.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="sysPrompt"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>System Prompt</FormLabel>
+              <FormControl>
+                <textarea
+                  {...field}
+                  className="w-full p-2 border border-gray-300 rounded bg-primary-foreground text-primary-background"
+                  rows={5}
+                />
+              </FormControl>
+              <FormDescription>
+                This is the prompt that will be used for the system.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="seed"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Seed</FormLabel>
+              <FormControl>
+                <input
+                  {...field}
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded bg-primary-foreground text-primary-background"
+                />
+              </FormControl>
+              <FormDescription>
+                The seed (integer) to use for random sampling. If not specified,
+                we will use a random seed. Increases the possibility of
+                deterministic outputs across calls, but not guaranteed.
               </FormDescription>
               <FormMessage />
             </FormItem>

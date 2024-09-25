@@ -6,12 +6,14 @@ export async function POST(req: Request, res: Response) {
     prompt,
     sysPrompt,
     temperature,
-    maxTokens
+    maxTokens,
+    seed
   }: {
     prompt: string
     sysPrompt: string
     temperature: string
     maxTokens: string
+    seed: string
   } = await req.json()
   const groq = createOpenAI({
     baseURL: 'https://api.groq.com/openai/v1',
@@ -21,12 +23,15 @@ export async function POST(req: Request, res: Response) {
   console.log('SysPrompt', sysPrompt)
   console.log('Temperature', temperature)
   console.log('MaxTokens', maxTokens)
+  console.log('Seed', seed)
   const result = await streamText({
     model: groq('llama3-8b-8192'),
     system: sysPrompt,
     prompt,
     temperature: parseInt(temperature),
-    maxTokens: parseInt(maxTokens)
+    maxTokens: parseInt(maxTokens),
+
+    ...(seed ? { seed: parseInt(seed) } : {})
   })
 
   return result.toDataStreamResponse({ sendUsage: true })
