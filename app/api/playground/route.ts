@@ -19,7 +19,7 @@ export async function POST(req: Request, res: Response) {
   const apiKey = req.headers.get('Authorization')?.replace('Bearer ', '') || ''
   console.log('API Key', apiKey)
   if (!apiKey) {
-    return new Response('Unauthorized', { status: 401 })
+    return new Response('API Key invalid', { status: 401 })
   }
 
   const groq = createOpenAI({

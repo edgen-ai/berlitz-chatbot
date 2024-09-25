@@ -54,7 +54,10 @@ export default function Playground() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`
       },
-      api: '/api/playground'
+      api: '/api/playground',
+      onError(error) {
+        alert(error)
+      }
     })
   useEffect(() => {
     if (isLoading) {
