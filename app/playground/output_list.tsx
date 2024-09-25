@@ -50,7 +50,7 @@ const OutputList = ({
             </TooltipTrigger>
             <TooltipContent>
               <p>
-                Start:{' '}
+                From:{' '}
                 {new Intl.DateTimeFormat('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -62,7 +62,7 @@ const OutputList = ({
                 }).format(new Date(completion.startTimestamp))}
               </p>
               <p>
-                End:{' '}
+                Until:{' '}
                 {new Intl.DateTimeFormat('en-US', {
                   year: 'numeric',
                   month: 'long',

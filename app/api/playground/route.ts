@@ -1,5 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { CoreMessage, streamText } from 'ai'
+import { streamText } from 'ai'
 
 export async function POST(req: Request, res: Response) {
   const {
