@@ -8,7 +8,12 @@ import SettingsForm from './settings_form'
 import { useEffect, useState } from 'react'
 import OutputList from './output_list'
 import LoadingCard from './loading_card'
+import ApiKeyDialog from './api_key_dialog'
+import { Dialog } from '@/components/ui/dialog'
+import { AlertDialogTrigger } from '@/components/ui/alert-dialog'
+
 export default function Playground() {
+  const [apiKey, setApiKey] = useState<string>('')
   const [completions, setCompletions] = useState<
     {
       content: string
@@ -45,6 +50,10 @@ export default function Playground() {
         seed: form.getValues('seed')?.toString(),
         sysPrompt: form.getValues('sysPrompt')?.toString()
       },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`
+      },
       api: '/api/playground'
     })
   useEffect(() => {
@@ -65,6 +74,7 @@ export default function Playground() {
 
   return (
     <main className="flex flex-col p-4 size-full">
+      <ApiKeyDialog apiKey={apiKey} setApiKey={setApiKey} />
       <h1 className="text-3xl font-bold">Playground</h1>
       <p>This is a playground for testing our models.</p>
       <div className="flex size-full flex-col md:flex-row items-stretch gap-4">
