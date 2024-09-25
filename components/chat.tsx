@@ -246,12 +246,16 @@ export function Chat({ id }: ChatProps) {
           pronunciation_exercise.length > 0 &&
           pronunciation_exercise[0]?.content
         ) {
-          // append({
-          //   role: 'assistant',
-          //   content: `${pronunciation_exercise[0].content}`,
-          //   id: 'pronunciation'
-          // })
-        }
+           setMessages((messages: any) => [
+          ...messages,
+          {
+            role: 'assistant',
+            content: pronunciation_exercise[0]?.content,
+            id: 'pronunciation'
+          }
+        ])
+        
+      }
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
             text: cleanup_markdown_from_text({ markdownText: sentence })
@@ -363,6 +367,7 @@ export function Chat({ id }: ChatProps) {
         <div className="px-2 max-w-2xl h-2/3 w-full md:w-1/2 md:h-full">
           {isChatOpen ? (
             <ChatPanel
+              append={append} 
               setIsChatOpen={setIsChatOpen}
               messages={messages}
               onSubmit={onSubmit}

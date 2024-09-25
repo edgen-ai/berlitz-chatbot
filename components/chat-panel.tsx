@@ -7,8 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from './ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useRef } from 'react'
+import { useActions, useUIState } from 'ai/rsc'
+import { useChat } from 'ai/react'
 
 export interface ChatPanelProps {
+  append: (value: any) => void
   setIsChatOpen: (value: boolean) => void
   messages: any[]
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
@@ -116,6 +119,7 @@ const MessageList = ({
   )
 }
 export function ChatPanel({
+  append, 
   setIsChatOpen,
   messages,
   onSubmit,
@@ -127,6 +131,7 @@ export function ChatPanel({
   playText
 }: ChatPanelProps) {
   const [saidWords, setSaidWords] = useState<string[]>([])
+  const { submitUserMessage } = useActions()
   // New state for recording
   const [isRecording, setIsRecording] = useState(false)
   const [expectedText, setExpectedText] = useState('')
@@ -190,15 +195,19 @@ export function ChatPanel({
         const evaluationResult = await evaluateAudio(audioFile, textToPronounce)
 
         // Update messages with evaluation result
-        setMessages((messages: any) => [
-          ...messages,
-          {
-            role: 'assistant',
-            content: evaluationResult.coloredText,
-            accuracy: evaluationResult.accuracyScore,
-            id: ''
-          }
-        ])
+        // setMessages((messages: any) => [
+        //   ...messages,
+        //   {
+        //     role: 'user',
+        //     content: evaluationResult.coloredText,
+        //     accuracy: evaluationResult.accuracyScore,
+        //     id: 'pronunciation_result_' + Date.now()
+        //   }
+        // ])
+        append({
+          role: 'user',
+          content: `${evaluationResult.coloredText} \n Accuracy: ${evaluationResult.accuracyScore} `,
+        })
       }
 
       mediaRecorderRef.current.start()
@@ -254,6 +263,7 @@ export function ChatPanel({
 
       const data = await response.json()
       const realTranscript = data.real_transcript
+      const letterCorrectnessRaw = data.is_letter_correct_all_words
       const letterCorrectness = data.is_letter_correct_all_words
         .trim()
         .split(' ')
@@ -277,8 +287,8 @@ export function ChatPanel({
           if (correctness && correctness[j] !== undefined) {
             const isCorrect = correctness[j] === '1'
             coloredText += isCorrect
-              ? `<span style="color: green">${letter}</span>`
-              : `<span style="color: red">${letter}</span>`
+              ? `<span style="color: lightgreen">${letter}</span>`
+              : `<span style="color: lightcoral">${letter}</span>`
           } else {
             // If there's no correctness data, display the letter in default color
             coloredText += `<span>${letter}</span>`
@@ -288,7 +298,9 @@ export function ChatPanel({
       }
       return {
         accuracyScore: pronunciationAccuracy,
-        coloredText
+        coloredText,
+        realTranscript,
+        letterCorrectnessRaw
       }
     } catch (error) {
       console.error('Error during API request:', error)
