@@ -52,7 +52,7 @@ export default function Playground() {
       },
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`
+        Authorization: `Bearer ${apiKey}`
       },
       api: '/api/playground'
     })
