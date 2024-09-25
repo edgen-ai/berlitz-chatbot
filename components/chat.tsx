@@ -311,8 +311,7 @@ export function Chat({ id }: ChatProps) {
               {
                 classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
                   ?.description
-              }{' '}
-              class
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
