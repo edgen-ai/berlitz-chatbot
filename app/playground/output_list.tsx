@@ -48,7 +48,7 @@ const OutputList = ({
                 </p>
               </CardFooter>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="text-center">
               <p>
                 From:{' '}
                 {new Intl.DateTimeFormat('en-US', {
