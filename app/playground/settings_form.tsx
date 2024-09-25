@@ -40,7 +40,9 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
                 <TooltipTrigger asChild>
                   <FormLabel>
                     Model
-                    <Badge className="ml-2">Disabled</Badge>
+                    <Badge className="ml-2" variant={'secondary'}>
+                      Disabled
+                    </Badge>
                   </FormLabel>
                 </TooltipTrigger>
                 <FormControl>
@@ -138,7 +140,12 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
           name="seed"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Seed</FormLabel>
+              <FormLabel>
+                Seed
+                <Badge className="ml-2" variant={'outline'}>
+                  Optional
+                </Badge>
+              </FormLabel>
               <FormControl>
                 <input
                   {...field}
