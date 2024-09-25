@@ -34,9 +34,9 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
                     <SelectValue placeholder="Model" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gpt2">Ruby</SelectItem>
-                    <SelectItem value="gpt3">Emerald</SelectItem>
-                    <SelectItem value="gpt4">Diamond</SelectItem>
+                    <SelectItem value="ruby">Ruby</SelectItem>
+                    <SelectItem value="emerald">Emerald</SelectItem>
+                    <SelectItem value="diamond">Diamond</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>

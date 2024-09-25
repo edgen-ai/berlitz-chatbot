@@ -20,7 +20,7 @@ export default function Playground() {
   const [startTimestamp, setStartTimestamp] = useState<number>(Date.now())
   const [askedInput, setAskedInput] = useState<string>('')
   const formSchema = z.object({
-    model: z.enum(['gpt2', 'gpt3', 'gpt4']),
+    model: z.enum(['ruby', 'emerald', 'diamond']),
     temperature: z.number(),
     maxTokens: z.number(),
     seed: z.number().optional(),
@@ -29,7 +29,7 @@ export default function Playground() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      model: 'gpt2',
+      model: 'ruby',
       temperature: 0.7,
       maxTokens: 500
     }
