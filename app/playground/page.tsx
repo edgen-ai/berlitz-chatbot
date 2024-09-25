@@ -63,12 +63,12 @@ export default function Playground() {
     <main className="flex flex-col p-4 size-full">
       <h1 className="text-3xl font-bold">Playground</h1>
       <p>This is a playground for testing our models.</p>
-      <div className="flex p-2 size-full">
-        <div className="flex flex-col p-4 w-1/3">
+      <div className="flex size-full items-stretch gap-4">
+        <div className="flex flex-col w-1/3">
           <h2 className="text-2xl font-bold">Settings</h2>
           <SettingsForm form={form} onSubmit={onSubmit} />
         </div>
-        <div className="flex flex-col p-4 w-2/3">
+        <div className="flex flex-col w-2/3">
           <h2 className="text-2xl font-bold">Input</h2>
           <Textarea
             className="p-2 border border-gray-300 rounded bg-primary-foreground text-primary-background"

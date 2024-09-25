@@ -29,5 +29,5 @@ export async function POST(req: Request, res: Response) {
     maxTokens: parseInt(maxTokens)
   })
 
-  return result.toDataStreamResponse()
+  return result.toDataStreamResponse({ sendUsage: true })
 }
