@@ -52,6 +52,14 @@ const ChatInput = ({
       name="prompt"
       value={input} // Always keep the input updated
       onChange={handleTextareaChange}
+            onKeyDown={e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault()
+          e.currentTarget.form?.dispatchEvent(
+            new Event('submit', { cancelable: true, bubbles: true })
+          )
+        }
+      }}
       ref={textareaRef} // Attach ref to the T
       rows={1}
       placeholder="Type or dictate a message"
