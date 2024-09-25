@@ -17,6 +17,12 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { Badge } from '@/components/ui/badge'
 
 const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
   return (
@@ -27,25 +33,35 @@ const SettingsForm = ({ form, onSubmit }: { form: any; onSubmit: any }) => {
           name="model"
           render={({ field }) => (
             <FormItem className="">
-              <FormLabel>Model</FormLabel>
-              <FormControl>
-                <Select name="model">
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ruby">Ruby</SelectItem>
-                    <SelectItem value="emerald">Emerald</SelectItem>
-                    <SelectItem value="diamond">Diamond</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormDescription>
-                Pick the model you want to use for generating completions. We
-                have Ruby (7B), Emerald (13B), and Diamond (40B) models
-                available.
-              </FormDescription>
-              <FormMessage />
+              <Tooltip>
+                <TooltipContent>
+                  <p>You can only test our Emerald model with this API key</p>
+                </TooltipContent>
+                <TooltipTrigger asChild>
+                  <FormLabel>
+                    Model
+                    <Badge className="ml-2">Disabled</Badge>
+                  </FormLabel>
+                </TooltipTrigger>
+                <FormControl>
+                  <Select name="model" disabled>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ruby">Ruby</SelectItem>
+                      <SelectItem value="emerald">Emerald</SelectItem>
+                      <SelectItem value="diamond">Diamond</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormDescription>
+                  Pick the model you want to use for generating completions. We
+                  have Ruby (7B), Emerald (13B), and Diamond (40B) models
+                  available.
+                </FormDescription>
+                <FormMessage />
+              </Tooltip>
             </FormItem>
           )}
         />
