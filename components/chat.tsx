@@ -46,6 +46,7 @@ export function Chat({ id }: ChatProps) {
   const [initialDialogOpen, setInitialDialogOpen] = useState(true)
   const { selectedBackground } = useBackground()
   const { selectedClass } = useClass()
+  const [isRecordingChat, setIsRecordingChat] = useState(false)
 
   // https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
   let {
@@ -96,7 +97,12 @@ export function Chat({ id }: ChatProps) {
       return
     }
 
-    if (!isResponding) {
+    if (isResponding || isRecordingChat) {
+      SpeechRecognition.stopListening() // Clean up on unmount or when editing starts
+      console.log('Stopped listening for speech.')
+    }
+
+    if (!isResponding && !isRecordingChat) {
       // Start listening for speech immediately when the component mounts
       SpeechRecognition.startListening({ continuous: true, language: 'en-US' })
       console.log('Listening for speech...')
@@ -147,62 +153,63 @@ export function Chat({ id }: ChatProps) {
     return cleanText.trim()
   }
   const get_each_sentence = (phrase: string) => {
-    const endOfSentenceRegex = /([^\.\?\!]+[\.\?\!]+)/g;
-    const sentences = phrase.match(endOfSentenceRegex) || [];
-  
+    const endOfSentenceRegex = /([^\.\?\!]+[\.\?\!]+)/g
+    const sentences = phrase.match(endOfSentenceRegex) || []
+
     // Calculate word counts for each sentence
-    const wordCounts = sentences.map(sentence => sentence.trim().split(/\s+/).length);
-  
-    const chunks: string[] = [];
-    let currentChunkSentences: string[] = [];
-    let currentChunkWordCount = 0;
-    let prevChunkWordCount = 0;
-  
+    const wordCounts = sentences.map(
+      sentence => sentence.trim().split(/\s+/).length
+    )
+
+    const chunks: string[] = []
+    let currentChunkSentences: string[] = []
+    let currentChunkWordCount = 0
+    let prevChunkWordCount = 0
+
     for (let i = 0; i < sentences.length; i++) {
-      const sentence = sentences[i];
-      const wordCount = wordCounts[i];
-  
-      currentChunkSentences.push(sentence);
-      currentChunkWordCount += wordCount;
-  
+      const sentence = sentences[i]
+      const wordCount = wordCounts[i]
+
+      currentChunkSentences.push(sentence)
+      currentChunkWordCount += wordCount
+
       // If current chunk's word count is greater than previous chunk's word count, finalize the chunk
       if (currentChunkWordCount > prevChunkWordCount) {
-        const chunk = currentChunkSentences.join(' ').trim();
-        chunks.push(chunk);
-  
+        const chunk = currentChunkSentences.join(' ').trim()
+        chunks.push(chunk)
+
         // Update previous chunk word count
-        prevChunkWordCount = currentChunkWordCount;
-  
+        prevChunkWordCount = currentChunkWordCount
+
         // Reset current chunk
-        currentChunkSentences = [];
-        currentChunkWordCount = 0;
+        currentChunkSentences = []
+        currentChunkWordCount = 0
       } else {
         // Continue adding sentences to current chunk
         // Note: This may exceed the maximum number of sentences per chunk
       }
     }
-  
+
     // Add any remaining sentences to the last chunk
     if (currentChunkSentences.length > 0) {
       // Ensure the last chunk is larger than the previous one
       if (currentChunkWordCount > prevChunkWordCount) {
-        const chunk = currentChunkSentences.join(' ').trim();
-        chunks.push(chunk);
+        const chunk = currentChunkSentences.join(' ').trim()
+        chunks.push(chunk)
       } else {
         // Merge with the previous chunk if it's not larger
         if (chunks.length > 0) {
-          chunks[chunks.length - 1] += ' ' + currentChunkSentences.join(' ').trim();
+          chunks[chunks.length - 1] +=
+            ' ' + currentChunkSentences.join(' ').trim()
         } else {
           // If there's no previous chunk, just add the current sentences
-          chunks.push(currentChunkSentences.join(' ').trim());
+          chunks.push(currentChunkSentences.join(' ').trim())
         }
       }
     }
-  
-    return chunks;
-  };
-  
-  
+
+    return chunks
+  }
 
   const extractPronunciationContent = (text: string) => {
     // Regex to match content between <pronunciation> and </pronunciation>, including multiline content
@@ -234,7 +241,6 @@ export function Chat({ id }: ChatProps) {
       if (messages[messages.length - 1]?.role === 'assistant') {
         const lastMessage = messages[messages.length - 1]
 
-
         const { cleanText: clean_script, exercises: pronunciation_exercise } =
           process_script(lastMessage.content)
         console.log(clean_script)
@@ -246,16 +252,15 @@ export function Chat({ id }: ChatProps) {
           pronunciation_exercise.length > 0 &&
           pronunciation_exercise[0]?.content
         ) {
-           setMessages((messages: any) => [
-          ...messages,
-          {
-            role: 'assistant',
-            content: pronunciation_exercise[0]?.content,
-            id: 'pronunciation'
-          }
-        ])
-        
-      }
+          setMessages((messages: any) => [
+            ...messages,
+            {
+              role: 'assistant',
+              content: pronunciation_exercise[0]?.content,
+              id: 'pronunciation'
+            }
+          ])
+        }
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
             text: cleanup_markdown_from_text({ markdownText: sentence })
@@ -367,7 +372,7 @@ export function Chat({ id }: ChatProps) {
         <div className="px-2 max-w-2xl h-2/3 w-full md:w-1/2 md:h-full">
           {isChatOpen ? (
             <ChatPanel
-              append={append} 
+              append={append}
               setIsChatOpen={setIsChatOpen}
               messages={messages}
               onSubmit={onSubmit}
@@ -378,6 +383,7 @@ export function Chat({ id }: ChatProps) {
               textareaRef={textareaRef}
               playText={playText}
               setMessages={setMessages}
+              setIsRecordingChat={setIsRecordingChat}
             />
           ) : (
             <CrazyButtons setIsChatOpen={setIsChatOpen} />

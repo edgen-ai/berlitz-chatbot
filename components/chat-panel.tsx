@@ -22,6 +22,7 @@ export interface ChatPanelProps {
   textareaRef: React.RefObject<HTMLTextAreaElement>
   setInput: (value: string) => void
   playText: ({ text }: { text: string }) => void
+  setIsRecordingChat: any
 }
 const AttachButton = () => (
   <Button variant="outline" size="icon" disabled>
@@ -119,7 +120,7 @@ const MessageList = ({
   )
 }
 export function ChatPanel({
-  append, 
+  append,
   setIsChatOpen,
   messages,
   onSubmit,
@@ -128,7 +129,8 @@ export function ChatPanel({
   setMessages,
   handleTextareaChange,
   textareaRef,
-  playText
+  playText,
+  setIsRecordingChat
 }: ChatPanelProps) {
   const [saidWords, setSaidWords] = useState<string[]>([])
   const { submitUserMessage } = useActions()
@@ -142,6 +144,7 @@ export function ChatPanel({
   // Function to start recording
   const handleStartRecording = async (textToPronounce: string) => {
     setIsRecording(true)
+    setIsRecordingChat(true)
     setExpectedText(textToPronounce)
     audioChunksRef.current = []
 
@@ -173,6 +176,7 @@ export function ChatPanel({
 
       mediaRecorderRef.current.onstop = async () => {
         setIsRecording(false)
+        setIsRecordingChat(false)
         // Stop all audio tracks
         stream.getTracks().forEach(track => track.stop())
 
@@ -206,7 +210,7 @@ export function ChatPanel({
         // ])
         append({
           role: 'user',
-          content: `${evaluationResult.coloredText} \n Accuracy: ${evaluationResult.accuracyScore} `,
+          content: `${evaluationResult.coloredText} \n Accuracy: ${evaluationResult.accuracyScore} `
         })
       }
 
