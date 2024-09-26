@@ -268,7 +268,7 @@ export function Chat({ id }: ChatProps) {
             text: cleanup_markdown_from_text({ markdownText: sentence })
           })
           if (i === 0) {
-            setTextResponse(sentence)
+            setTextResponse(cleanup_markdown_from_text(sentence))
             setAudioBuffer(audiB as any)
             setNewSentence(true)
           } else {
