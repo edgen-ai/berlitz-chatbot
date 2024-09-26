@@ -26,7 +26,12 @@ import Loading from '@/components/TalkingHead/components/loading'
 import { useEmote } from '@/lib/hooks/emote-context'
 import { useSubtitles } from '@/lib/hooks/subtitles-context'
 
-const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
+const TalkingHeadComponent = ({
+  audioToSay,
+  textToSay,
+  setIsResponding,
+  setAudioBuffer
+}) => {
   // the audioToSay is an audio Buffer, like what we get from the server
   // the textToSay is the text that matches the audioToSay
   // the hack consists on saying the textToSay
@@ -84,6 +89,7 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
             },
             {},
             () => {
+              setAudioBuffer(null)
               setIsResponding(false)
               if (subtitlesState) setSubtitles('')
             },
@@ -198,7 +204,7 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
 
       const form = new FormData()
       form.append('file', file)
-      form.append('model', 'whisper-large-v3')
+      form.append('model', 'distil-whisper-large-v3-en')
       form.append('language', 'en')
       form.append('response_format', 'verbose_json')
 

@@ -48,6 +48,8 @@ export function Chat({ id }: ChatProps) {
   const { selectedBackground } = useBackground()
   const { selectedClass } = useClass()
   const [isRecordingChat, setIsRecordingChat] = useState(false)
+  const sentenceListRef = useRef<any>([]) // Use ref for sentence list
+  const [newSentence, setNewSentence] = useState<any>(false)
 
   // https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
   let {
@@ -231,8 +233,9 @@ export function Chat({ id }: ChatProps) {
     const audiB = await fetch_and_play_audio({
       text: cleanup_markdown_from_text({ markdownText: text })
     })
+    console.log('setting audio', audiB)
+    setAudioBuffer(audiB as any)
     setTextResponse(text)
-    await setAudioBuffer(audiB as any)
   }
   useEffect(() => {
     async function getAudioAndPlay() {
@@ -252,22 +255,58 @@ export function Chat({ id }: ChatProps) {
           pronunciation_exercise[0]?.content
         ) {
           setIsRecordingChat(true)
-          const assistantMessage: MessageR = { role: 'assistant', content: pronunciation_exercise[0]?.content, id: 'pronunciation' }
+          const assistantMessage: MessageR = {
+            role: 'assistant',
+            content: pronunciation_exercise[0]?.content,
+            id: 'pronunciation'
+          }
           setMessages([...messages, assistantMessage])
         }
-        for (const sentence of sentences) {
+        for (let i = 0; i < sentences.length; i++) {
+          const sentence = sentences[i]
           const audiB = await fetch_and_play_audio({
             text: cleanup_markdown_from_text({ markdownText: sentence })
           })
-          setTextResponse(
-            cleanup_markdown_from_text({ markdownText: sentence })
-          )
-          setAudioBuffer(audiB as any)
+          if (i === 0) {
+            setTextResponse(sentence)
+            setAudioBuffer(audiB as any)
+            setNewSentence(true)
+          } else {
+            console.log(
+              'sentenceListRef.current first',
+              sentenceListRef.current
+            )
+            setNewSentence(true)
+            sentenceListRef.current = [
+              ...sentenceListRef.current,
+              { text: sentence, audio: audiB }
+            ]
+            console.log('sentenceListRef.current', sentenceListRef.current)
+          }
         }
       }
     }
     getAudioAndPlay()
   }, [isLoading])
+
+  useEffect(() => {
+    console.log('audioBuffer:', audioBuffer)
+    console.log('newSentence:', newSentence)
+    console.log('sentenceListRef.current:', sentenceListRef.current)
+    if (sentenceListRef.current.length > 0 && !audioBuffer) {
+      const sentence = sentenceListRef.current[0]
+      if (!sentence.audio) {
+        console.error('Missing audio for sentence:', sentence.text)
+        return
+      }
+      setTextResponse(sentence.text)
+      console.log('sentence.audio', sentence.audio)
+      console.log('sentence.text', sentence.text)
+      setAudioBuffer(sentence.audio) // Set the audio buffer directly
+      sentenceListRef.current = sentenceListRef.current.slice(1) // Remove the first sentence
+      setNewSentence(false)
+    }
+  }, [audioBuffer, newSentence, sentenceListRef.current])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -360,6 +399,7 @@ export function Chat({ id }: ChatProps) {
             textToSay={textResponse}
             audioToSay={audioBuffer}
             setIsResponding={setIsResponding}
+            setAudioBuffer={setAudioBuffer}
           />
         </div>
         <div className="px-2 max-w-2xl h-2/3 w-full md:w-1/2 md:h-full">
