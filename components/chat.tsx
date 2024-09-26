@@ -26,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from './ui/alert-dialog'
+import { Message as MessageR } from 'ai/react'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -253,13 +254,10 @@ export function Chat({ id }: ChatProps) {
           pronunciation_exercise[0]?.content
         ) {
           setIsRecordingChat(true)
-          setMessages((messages) => [
+          const assistantMessage: MessageR = { role: 'assistant', content: pronunciation_exercise[0]?.content, id: 'pronunciation' }
+          setMessages((messages: MessageR[]) => [
             ...messages,
-            {
-              role: 'assistant',
-              content: pronunciation_exercise[0]?.content,
-              id: 'pronunciation'
-            }
+            assistantMessage
           ])
         }
         for (const sentence of sentences) {
