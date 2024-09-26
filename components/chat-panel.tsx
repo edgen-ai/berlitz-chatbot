@@ -324,37 +324,81 @@ export function ChatPanel({
   }
 
   useEffect(() => {
-    // Check if the user has said any of the words in the vocabulary
-    // in the messages and add them to the list of said words
-    // for all messages, only checking the user messages
+    // Helper function to find new terms in text
+    function findNewTermsInText(
+      termsArray: string[],
+      userText: string,
+      existingTerms: string | any[]
+    ) {
+      const normalizedTerms = termsArray.map(normalizeWord)
+      return normalizedTerms.filter((term: any) => {
+        const termRegex = new RegExp(`\\b${term}\\b`, 'i') // Match whole words
+        return termRegex.test(userText) && !existingTerms.includes(term)
+      })
+    }
+
+    // Your main function or useEffect where this code runs
+    // ...
+
+    // Filter user messages to only those from the user
     const userMessages = messages.filter(m => m.role === 'user')
+
     // Concatenate all user messages into a single string
     const userText = userMessages
       .map(m => normalizeWord(m.content))
       .join(' ')
       .toLowerCase()
 
-    // Define your vocabulary (which may include composite words/phrases)
-    const vocabulary =
-      classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
-        ?.vocabulary
-    if (!vocabulary) {
+    // Get the selected class type
+    const classType = classTypes.find(ct => ct.id === selectedClass)
+
+    if (!classType) {
       return
     }
 
-    // Normalize the vocabulary terms
-    const normalizedVocabulary = vocabulary.map(normalizeWord)
+    const { vocabulary, vocabularyPlurals } = classType
 
-    // Use regex to find whole words or phrases in the user's text
-    const newWords = normalizedVocabulary.filter(term => {
-      const termRegex = new RegExp(`\\b${term}\\b`, 'i') // Match whole words
-      return termRegex.test(userText) && !saidWords.includes(term)
-    })
+    // Initialize an array to hold new words found
+    let newWords: string[] = []
+
+    // Find new vocabulary terms in user text
+    if (vocabulary) {
+      const vocabularyMatches = findNewTermsInText(
+        vocabulary,
+        userText,
+        saidWords
+      )
+      newWords = [...newWords, ...vocabularyMatches]
+    }
+
+    // Find new vocabulary plurals in user text
+    if (vocabularyPlurals) {
+      const pluralsMatches = findNewTermsInText(
+        vocabularyPlurals,
+        userText,
+        saidWords
+      )
+
+      // Map plurals back to their singular forms
+      const normalizedVocabulary = vocabulary.map(normalizeWord)
+      const normalizedVocabularyPlurals = vocabularyPlurals.map(normalizeWord)
+
+      pluralsMatches.forEach(pluralTerm => {
+        const index = normalizedVocabularyPlurals.indexOf(pluralTerm)
+        if (index !== -1) {
+          const singularTerm = normalizedVocabulary[index]
+          if (!saidWords.includes(singularTerm)) {
+            newWords.push(singularTerm)
+          }
+        }
+      })
+    }
 
     // Update the saidWords state with any new terms found
-    setSaidWords(prevSaidWords => [...prevSaidWords, ...newWords])
+    if (newWords.length > 0) {
+      setSaidWords(prevSaidWords => [...prevSaidWords, ...newWords])
+    }
   }, [messages, classTypes, selectedClass])
-
   return (
     <div className="flex flex-col justify-between width-full rounded-lg shadow-lg max-w-2xl h-full">
       <Chatheader setIsChatOpen={setIsChatOpen} />

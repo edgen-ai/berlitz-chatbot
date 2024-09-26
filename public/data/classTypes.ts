@@ -4,6 +4,7 @@ const classTypes: {
   vocabulary: string[]
   vocabularyAbbreviations?: string[]
   vocabularyDefinitions?: string[]
+  vocabularyPlurals?: string[]
   description: string
 }[] = [
   {
@@ -20,6 +21,16 @@ const classTypes: {
       'emergency department'
     ],
     vocabularyAbbreviations: ['', 'Dr.', '', 'ICU', '', '', 'OR', 'ED'],
+    vocabularyPlurals: [
+      '',
+      'doctors',
+      'nurses',
+      '',
+      'wards',
+      'surgeons',
+      'operating rooms',
+      ''
+    ],
     vocabularyDefinitions: [
       'relating to the science or practice of medicine',
       'a qualified practitioner of medicine; a physician',
@@ -83,7 +94,7 @@ const classTypes: {
     name: 'Talk about health in general with no specific context',
     vocabulary: [],
     description:
-      'Free lesson: Talk about health in general with no specific context'
+      'Free lesson: Talk about healthcare in general with no specific context'
   }
 ]
 
