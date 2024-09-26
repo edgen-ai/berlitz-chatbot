@@ -92,7 +92,7 @@ export function Chat({ id }: ChatProps) {
     setInput('')
   }, [localClassType])
   useEffect(() => {
-    console.log('running lsistener')
+    console.log('Listener started')
     if (!browserSupportsSpeechRecognition) {
       console.error('Browser does not support speech recognition.')
       return
@@ -244,9 +244,7 @@ export function Chat({ id }: ChatProps) {
 
         const { cleanText: clean_script, exercises: pronunciation_exercise } =
           process_script(lastMessage.content)
-        console.log(clean_script)
         const sentences = get_each_sentence(clean_script)
-        console.log('sentences', sentences)
         if (
           typeof pronunciation_exercise !== 'string' &&
           Array.isArray(pronunciation_exercise) &&
