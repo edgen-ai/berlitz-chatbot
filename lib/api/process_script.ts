@@ -66,17 +66,16 @@ function process_script(text: string): {
 }
 
 function convertNumbersToWords(text: string): string {
-  function replaceWithWord(match: RegExpMatchArray): string {
-    const numberMatch = match[0].match(/\d+/)
-    const number = numberMatch ? numberMatch[0] : ''
-    return toWords(Number(number))
+  function replaceWithWord(match: string): string {
+    const numberMatch = match.match(/\d+/) // Extract digits from the matched string
+    const number = numberMatch ? numberMatch[0] : '' // Get the number as a string
+    return toWords(Number(number)) // Convert the number to words using toWords
   }
 
-  const pattern = /\bn?\d+\./g
-  return text.replace(pattern, (substring: string, ...args: any) =>
-    replaceWithWord(args)
-  )
+  const pattern = /\b\d+\./g // Match a word boundary followed by digits and a dot
+  return text.replace(pattern, replaceWithWord) // Directly pass the match to replaceWithWord
 }
+
 
 function extractPronunciation(
   _text: string

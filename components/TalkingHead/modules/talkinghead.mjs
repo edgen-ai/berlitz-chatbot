@@ -3838,7 +3838,6 @@ class TalkingHead {
       }
     }
 
-    this.speechQueue.push({ break: 1000 })
 
     // Start speaking (if not already)
     this.startSpeaking()
@@ -4105,7 +4104,6 @@ class TalkingHead {
 
     if (Object.keys(o).length) {
       this.speechQueue.push(o)
-      this.speechQueue.push({ break: 300 })
       this.startSpeaking()
       if (onComplete) {
         this.onComplete = onComplete

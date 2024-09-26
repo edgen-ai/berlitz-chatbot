@@ -233,8 +233,9 @@ export function Chat({ id }: ChatProps) {
     const audiB = await fetch_and_play_audio({
       text: cleanup_markdown_from_text({ markdownText: text })
     })
-    setTextResponse(text)
+    console.log('setting audio', audiB)
     setAudioBuffer(audiB as any)
+    setTextResponse(text)
   }
   useEffect(() => {
     async function getAudioAndPlay() {
@@ -271,10 +272,16 @@ export function Chat({ id }: ChatProps) {
             setAudioBuffer(audiB as any)
             setNewSentence(true)
           } else {
+            console.log(
+              'sentenceListRef.current first',
+              sentenceListRef.current
+            )
+            setNewSentence(true)
             sentenceListRef.current = [
               ...sentenceListRef.current,
               { text: sentence, audio: audiB }
             ]
+            console.log('sentenceListRef.current', sentenceListRef.current)
           }
         }
       }
@@ -283,14 +290,23 @@ export function Chat({ id }: ChatProps) {
   }, [isLoading])
 
   useEffect(() => {
+    console.log('audioBuffer:', audioBuffer)
+    console.log('newSentence:', newSentence)
+    console.log('sentenceListRef.current:', sentenceListRef.current)
     if (sentenceListRef.current.length > 0 && !audioBuffer) {
       const sentence = sentenceListRef.current[0]
+      if (!sentence.audio) {
+        console.error('Missing audio for sentence:', sentence.text)
+        return
+      }
       setTextResponse(sentence.text)
+      console.log('sentence.audio', sentence.audio)
+      console.log('sentence.text', sentence.text)
       setAudioBuffer(sentence.audio) // Set the audio buffer directly
       sentenceListRef.current = sentenceListRef.current.slice(1) // Remove the first sentence
       setNewSentence(false)
     }
-  }, [audioBuffer, sentenceListRef.current, newSentence])
+  }, [audioBuffer, newSentence, sentenceListRef.current])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
