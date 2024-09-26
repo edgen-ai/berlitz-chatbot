@@ -253,7 +253,7 @@ export function Chat({ id }: ChatProps) {
           pronunciation_exercise[0]?.content
         ) {
           setIsRecordingChat(true)
-          setMessages((messages: any) => [
+          setMessages((messages) => [
             ...messages,
             {
               role: 'assistant',
