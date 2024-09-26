@@ -26,7 +26,12 @@ import Loading from '@/components/TalkingHead/components/loading'
 import { useEmote } from '@/lib/hooks/emote-context'
 import { useSubtitles } from '@/lib/hooks/subtitles-context'
 
-const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
+const TalkingHeadComponent = ({
+  audioToSay,
+  textToSay,
+  setIsResponding,
+  setAudioBuffer
+}) => {
   // the audioToSay is an audio Buffer, like what we get from the server
   // the textToSay is the text that matches the audioToSay
   // the hack consists on saying the textToSay
@@ -84,6 +89,7 @@ const TalkingHeadComponent = ({ audioToSay, textToSay, setIsResponding }) => {
             },
             {},
             () => {
+              setAudioBuffer(null)
               setIsResponding(false)
               if (subtitlesState) setSubtitles('')
             },
