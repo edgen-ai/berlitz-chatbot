@@ -45,13 +45,6 @@ const VocabularyList = ({
                 <TooltipTrigger>
                   <Badge
                     variant={`${saidWords.includes(word) ? 'default' : 'secondary'}`}
-                    onClick={() =>
-                      playText({
-                        text: definition
-                          ? `The word ${word} means ${definition}`
-                          : `Repeat after me: ${word}`
-                      })
-                    }
                   >
                     {`${word}${
                       vocabularyAbbreviations[definitionIndex]
