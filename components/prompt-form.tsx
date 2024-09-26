@@ -68,6 +68,7 @@ export function PromptForm({
     setInput('')
     if (!value) return
 
+    console.log('User message:', value)
     // Optimistically add user message UI
     setMessages(currentMessages => [
       ...currentMessages,
@@ -77,10 +78,9 @@ export function PromptForm({
       }
     ])
 
+
     // Submit and get response message
     const responseMessage = await submitUserMessage(value)
-    const { cleanText: clean_script, exercises: pronunciation_exercise }  = process_script(responseMessage.display) 
-    setMessages(currentMessages => [...currentMessages, { id: `msg_${currentMessages.length + 1}`, display:<SystemMessage>{clean_script}</SystemMessage>}])
   }
 
   return (

@@ -7,8 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from './ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useRef } from 'react'
+import { useActions, useUIState } from 'ai/rsc'
+import { useChat } from 'ai/react'
 
 export interface ChatPanelProps {
+  append: (value: any) => void
   setIsChatOpen: (value: boolean) => void
   messages: any[]
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
@@ -19,6 +22,7 @@ export interface ChatPanelProps {
   textareaRef: React.RefObject<HTMLTextAreaElement>
   setInput: (value: string) => void
   playText: ({ text }: { text: string }) => void
+  setIsRecordingChat: any
 }
 const AttachButton = () => (
   <Button variant="outline" size="icon" disabled>
@@ -124,6 +128,7 @@ const MessageList = ({
   )
 }
 export function ChatPanel({
+  append,
   setIsChatOpen,
   messages,
   onSubmit,
@@ -132,9 +137,11 @@ export function ChatPanel({
   setMessages,
   handleTextareaChange,
   textareaRef,
-  playText
+  playText,
+  setIsRecordingChat
 }: ChatPanelProps) {
   const [saidWords, setSaidWords] = useState<string[]>([])
+  const { submitUserMessage } = useActions()
   // New state for recording
   const [isRecording, setIsRecording] = useState(false)
   const [expectedText, setExpectedText] = useState('')
@@ -142,14 +149,34 @@ export function ChatPanel({
   const audioChunksRef = useRef<Blob[]>([])
 
   // Function to start recording
+  // Function to start recording
   const handleStartRecording = async (textToPronounce: string) => {
     setIsRecording(true)
+    setIsRecordingChat(true)
     setExpectedText(textToPronounce)
     audioChunksRef.current = []
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      mediaRecorderRef.current = new MediaRecorder(stream)
+
+      // Determine supported mime type
+      const getSupportedMimeType = () => {
+        const possibleTypes = [
+          'audio/webm;codecs=opus',
+          'audio/ogg;codecs=opus',
+          'audio/webm',
+          'audio/ogg'
+        ]
+        for (const mimeType of possibleTypes) {
+          if (MediaRecorder.isTypeSupported(mimeType)) {
+            return mimeType
+          }
+        }
+        return ''
+      }
+
+      const options = { mimeType: getSupportedMimeType() }
+      mediaRecorderRef.current = new MediaRecorder(stream, options)
 
       mediaRecorderRef.current.ondataavailable = event => {
         audioChunksRef.current.push(event.data)
@@ -157,26 +184,32 @@ export function ChatPanel({
 
       mediaRecorderRef.current.onstop = async () => {
         setIsRecording(false)
+        setIsRecordingChat(false)
         // Stop all audio tracks
         stream.getTracks().forEach(track => track.stop())
 
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: 'audio/wav'
+          type: mediaRecorderRef.current!.mimeType
         })
-        const audioFile = new File([audioBlob], 'recording.wav', {
-          type: 'audio/wav'
-        })
-        const evaluationResult = await evaluateAudio(audioFile, expectedText)
 
-        // Update messages with evaluation result
-        setMessages((messages: any) => [
-          ...messages,
-          {
-            role: 'assistant',
-            content: evaluationResult.coloredText,
-            id: ''
-          }
-        ])
+        // Determine file extension based on mime type
+        const mimeType = mediaRecorderRef.current!.mimeType
+        let extension = 'webm'
+        if (mimeType.includes('ogg')) {
+          extension = 'ogg'
+        } else if (mimeType.includes('wav')) {
+          extension = 'wav'
+        }
+
+        const audioFile = new File([audioBlob], `recording.${extension}`, {
+          type: mimeType
+        })
+        const evaluationResult = await evaluateAudio(audioFile, textToPronounce)
+
+        append({
+          role: 'user',
+          content: `${evaluationResult.coloredText} \n Accuracy: ${evaluationResult.accuracyScore} `
+        })
       }
 
       mediaRecorderRef.current.start()
@@ -215,6 +248,7 @@ export function ChatPanel({
 
     const formData = new FormData()
     formData.append('file', file)
+    formData.append('title', transcription)
     formData.append('transcription', transcription)
     formData.append('language', 'en')
 
@@ -229,28 +263,45 @@ export function ChatPanel({
       }
 
       const data = await response.json()
-      console.log(data)
-
-      const realTranscript = data.real_transcript
+      const realTranscript = data.real_transcripts
+      const letterCorrectnessRaw = data.is_letter_correct_all_words
       const letterCorrectness = data.is_letter_correct_all_words
         .trim()
         .split(' ')
+      const letterCorrectnessArray = letterCorrectness
+      const words = realTranscript.split(' ')
+      if (words.length > letterCorrectnessArray.length) {
+        const difference = words.length - letterCorrectnessArray.length
+        for (let i = 0; i < difference; i++) {
+          letterCorrectnessArray.unshift('')
+        }
+      }
       const pronunciationAccuracy = data.pronunciation_accuracy
 
       // Generate colored transcript based on the correctness
-      const coloredText = realTranscript
-        .split('')
-        .map((letter: string, index: number) => {
-          const isCorrect = letterCorrectness[index] === '1'
-          return isCorrect
-            ? `<span style="color: green">${letter}</span>`
-            : `<span style="color: red">${letter}</span>`
-        })
-        .join('')
-
+      let coloredText = ''
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i]
+        const correctness = letterCorrectnessArray[i] || ''
+        for (let j = 0; j < word.length; j++) {
+          const letter = word[j]
+          if (correctness && correctness[j] !== undefined) {
+            const isCorrect = correctness[j] === '1'
+            coloredText += isCorrect
+              ? `<span style="color: lightgreen">${letter}</span>`
+              : `<span style="color: lightcoral">${letter}</span>`
+          } else {
+            // If there's no correctness data, display the letter in default color
+            coloredText += `<span>${letter}</span>`
+          }
+        }
+        coloredText += ' ' // Add space between words
+      }
       return {
         accuracyScore: pronunciationAccuracy,
-        coloredText
+        coloredText,
+        realTranscript,
+        letterCorrectnessRaw
       }
     } catch (error) {
       console.error('Error during API request:', error)
@@ -268,37 +319,81 @@ export function ChatPanel({
   }
 
   useEffect(() => {
-    // Check if the user has said any of the words in the vocabulary
-    // in the messages and add them to the list of said words
-    // for all messages, only checking the user messages
+    // Helper function to find new terms in text
+    function findNewTermsInText(
+      termsArray: string[],
+      userText: string,
+      existingTerms: string | any[]
+    ) {
+      const normalizedTerms = termsArray.map(normalizeWord)
+      return normalizedTerms.filter((term: any) => {
+        const termRegex = new RegExp(`\\b${term}\\b`, 'i') // Match whole words
+        return termRegex.test(userText) && !existingTerms.includes(term)
+      })
+    }
+
+    // Your main function or useEffect where this code runs
+    // ...
+
+    // Filter user messages to only those from the user
     const userMessages = messages.filter(m => m.role === 'user')
+
     // Concatenate all user messages into a single string
     const userText = userMessages
       .map(m => normalizeWord(m.content))
       .join(' ')
       .toLowerCase()
 
-    // Define your vocabulary (which may include composite words/phrases)
-    const vocabulary =
-      classTypes[classTypes.findIndex(ct => ct.id === selectedClass)]
-        ?.vocabulary
-    if (!vocabulary) {
+    // Get the selected class type
+    const classType = classTypes.find(ct => ct.id === selectedClass)
+
+    if (!classType) {
       return
     }
 
-    // Normalize the vocabulary terms
-    const normalizedVocabulary = vocabulary.map(normalizeWord)
+    const { vocabulary, vocabularyPlurals } = classType
 
-    // Use regex to find whole words or phrases in the user's text
-    const newWords = normalizedVocabulary.filter(term => {
-      const termRegex = new RegExp(`\\b${term}\\b`, 'i') // Match whole words
-      return termRegex.test(userText) && !saidWords.includes(term)
-    })
+    // Initialize an array to hold new words found
+    let newWords: string[] = []
+
+    // Find new vocabulary terms in user text
+    if (vocabulary) {
+      const vocabularyMatches = findNewTermsInText(
+        vocabulary,
+        userText,
+        saidWords
+      )
+      newWords = [...newWords, ...vocabularyMatches]
+    }
+
+    // Find new vocabulary plurals in user text
+    if (vocabularyPlurals) {
+      const pluralsMatches = findNewTermsInText(
+        vocabularyPlurals,
+        userText,
+        saidWords
+      )
+
+      // Map plurals back to their singular forms
+      const normalizedVocabulary = vocabulary.map(normalizeWord)
+      const normalizedVocabularyPlurals = vocabularyPlurals.map(normalizeWord)
+
+      pluralsMatches.forEach(pluralTerm => {
+        const index = normalizedVocabularyPlurals.indexOf(pluralTerm)
+        if (index !== -1) {
+          const singularTerm = normalizedVocabulary[index]
+          if (!saidWords.includes(singularTerm)) {
+            newWords.push(singularTerm)
+          }
+        }
+      })
+    }
 
     // Update the saidWords state with any new terms found
-    setSaidWords(prevSaidWords => [...prevSaidWords, ...newWords])
+    if (newWords.length > 0) {
+      setSaidWords(prevSaidWords => [...prevSaidWords, ...newWords])
+    }
   }, [messages, classTypes, selectedClass])
-
   return (
     <div className="flex flex-col justify-between width-full rounded-lg shadow-lg max-w-2xl h-full">
       <Chatheader setIsChatOpen={setIsChatOpen} />
