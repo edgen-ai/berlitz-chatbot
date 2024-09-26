@@ -145,7 +145,6 @@ export function ChatPanel({
   const handleStartRecording = async (textToPronounce: string) => {
     setIsRecording(true)
     setIsRecordingChat(true)
-    console.log('setting recording chat')
     setExpectedText(textToPronounce)
     audioChunksRef.current = []
 
@@ -178,7 +177,6 @@ export function ChatPanel({
       mediaRecorderRef.current.onstop = async () => {
         setIsRecording(false)
         setIsRecordingChat(false)
-        console.log('recording stopped')
         // Stop all audio tracks
         stream.getTracks().forEach(track => track.stop())
 
@@ -200,16 +198,6 @@ export function ChatPanel({
         })
         const evaluationResult = await evaluateAudio(audioFile, textToPronounce)
 
-        // Update messages with evaluation result
-        // setMessages((messages: any) => [
-        //   ...messages,
-        //   {
-        //     role: 'user',
-        //     content: evaluationResult.coloredText,
-        //     accuracy: evaluationResult.accuracyScore,
-        //     id: 'pronunciation_result_' + Date.now()
-        //   }
-        // ])
         append({
           role: 'user',
           content: `${evaluationResult.coloredText} \n Accuracy: ${evaluationResult.accuracyScore} `
@@ -255,7 +243,6 @@ export function ChatPanel({
     formData.append('title', transcription)
     formData.append('transcription', transcription)
     formData.append('language', 'en')
-    console.log('formData', formData.get('file'))
 
     try {
       const response = await fetch(apiUrl, {
