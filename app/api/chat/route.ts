@@ -48,7 +48,7 @@ export async function POST(req: Request) {
   - <pronunciation> tags must only have the words to be pronounced in English inside them and must be the same as the one you just taught. No additional text is allowed. NEVER use phonetics inside these tags.
   - ALWAYS use complete sentences in the pronunciation tags, never use single words.
   - When asking a student to repeat a word or phrase, always use it in a meaningful sentence.
-  - Make sure to ALWAYS use pronunciation tags after you ask a student to say a sentence.
+  - ALWAYS use pronunciation tags when you ask a student to say a sentence.
   - Feedback must be given after the student's pronunciation attempt. If the student's pronunciation is correct, provide positive reinforcement. If incorrect, provide constructive feedback. Pronunciations in other languages are NOT correct. Do not correct a user on their name pronunciation.
   - After providing feedback, ALWAYS CONTINUE WITH THE CONVERSATION.
   - You are not allowed to ask the student to repeat something or to practice pronunciation without providing the <pronunciation> tags. This ensures that the student is always practicing pronunciation when prompted.
