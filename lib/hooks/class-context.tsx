@@ -50,7 +50,7 @@ export function ClassProvider({ children }: ClassProviderProps) {
   React.useEffect(() => {
     if (!isInitialRender.current && selectedClass !== initialStoredClass) {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('selectedClass', selectedClass)
+        localStorage.setItem('selectedClass', selectedClass || '1')
         console.log('Saving new class and reloading', selectedClass)
         window.location.reload()
       }
