@@ -255,10 +255,7 @@ export function Chat({ id }: ChatProps) {
         ) {
           setIsRecordingChat(true)
           const assistantMessage: MessageR = { role: 'assistant', content: pronunciation_exercise[0]?.content, id: 'pronunciation' }
-          setMessages((messages: MessageR[]) => [
-            ...messages,
-            assistantMessage
-          ])
+          setMessages([...messages, assistantMessage])
         }
         for (const sentence of sentences) {
           const audiB = await fetch_and_play_audio({
