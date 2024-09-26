@@ -4,6 +4,7 @@ const classTypes: {
   vocabulary: string[]
   vocabularyAbbreviations?: string[]
   vocabularyDefinitions?: string[]
+  vocabularyPlurals?: string[]
   description: string
 }[] = [
   {
