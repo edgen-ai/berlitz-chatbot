@@ -48,7 +48,8 @@ export function Chat({ id }: ChatProps) {
   const { selectedBackground } = useBackground()
   const { selectedClass } = useClass()
   const [isRecordingChat, setIsRecordingChat] = useState(false)
-  const [sentenceList, setSentenceList] = useState<any[]>([])
+  const sentenceListRef = useRef<any>([]) // Use ref for sentence list
+  const [newSentence, setNewSentence] = useState<any>(false)
 
   // https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat
   let {
@@ -268,11 +269,12 @@ export function Chat({ id }: ChatProps) {
           if (i === 0) {
             setTextResponse(sentence)
             setAudioBuffer(audiB as any)
+            setNewSentence(true)
           } else {
-            setSentenceList(prevSentenceList => [
-              ...prevSentenceList,
+            sentenceListRef.current = [
+              ...sentenceListRef.current,
               { text: sentence, audio: audiB }
-            ])
+            ]
           }
         }
       }
@@ -281,13 +283,14 @@ export function Chat({ id }: ChatProps) {
   }, [isLoading])
 
   useEffect(() => {
-    if (sentenceList.length > 0 && !audioBuffer) {
-      const sentence = sentenceList[0]
+    if (sentenceListRef.current.length > 0 && !audioBuffer) {
+      const sentence = sentenceListRef.current[0]
       setTextResponse(sentence.text)
-      setAudioBuffer(sentence.audio)
-      setSentenceList(sentenceList.slice(1)) // This creates a new array without the first element
+      setAudioBuffer(sentence.audio) // Set the audio buffer directly
+      sentenceListRef.current = sentenceListRef.current.slice(1) // Remove the first sentence
+      setNewSentence(false)
     }
-  }, [audioBuffer])
+  }, [audioBuffer, sentenceListRef.current, newSentence])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

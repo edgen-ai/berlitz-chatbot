@@ -28,8 +28,7 @@ export async function POST(req: Request) {
   Here are some examples of how to introduce pronunciation exercises. They MUST BE CALLED USING THE <pronunciation> TAGS AND THEY MUST BE MEDIUM TO LONG PHRASES WITH MEANING:
   "Let's practice pronunciation. Can you say 'I ate an apple while running'? <pronunciation>I ate an apple while running</pronunciation>"
   "Let's work on pronunciation. Can you say 'I went for a run through the streets of London'? <pronunciation>I went for a run through the streets of London</pronunciation>"
-  "Let's work on pronunciation. Can you say 'I went for a run through the streets of London'? <pronunciation>I went for a run through the streets of London</pronunciation>"
-
+  "Let's practice some pronunciation. Can you say 'I'm going to see the doctor'? <pronunciation>I'm going to see the doctor</pronunciation>"
   "Why don't you try saying 'I ate an apple in the park'? <pronunciation>I ate an apple in the park</pronunciation>"
   STRICT RULES:
   - Include pronunciation exercises regularly. Aim for one exercise every two to three interactions, and up to 4 per lesson.
