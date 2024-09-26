@@ -204,7 +204,7 @@ const TalkingHeadComponent = ({
 
       const form = new FormData()
       form.append('file', file)
-      form.append('model', 'whisper-large-v3')
+      form.append('model', 'distil-whisper-large-v3-en')
       form.append('language', 'en')
       form.append('response_format', 'verbose_json')
 
