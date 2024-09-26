@@ -36,6 +36,7 @@ export async function POST(req: Request) {
     - Make sure to ALWAYS use pronunciation tags after you ask a student to say a sentence.
     - Feedback must be given after the student's pronunciation attempt. If the student's pronunciation is correct, provide positive reinforcement. If incorrect, provide constructive feedback. Pronunciations in Spanish are NOT correct. Do not correct a user on their name pronunciation.
     - After providing feedback, ALWAYS CONTINUE WITH THE CLASS
+    - You are not allowed to ask for the student to repeat something or that you will practice pronunciation without providing the <pronunciation> tags. This is to ensure that the student is always practicing pronunciation.
     THE STUDENT RESPONSE TO YOUR PRONUNCIATION EXERCISES WILL LOOK LIKE THIS:
   i am going to the intensive care unit
   Accuracy: 97
