@@ -20,6 +20,16 @@ const classTypes: {
       'emergency department'
     ],
     vocabularyAbbreviations: ['', 'Dr.', '', 'ICU', '', '', 'OR', 'ED'],
+    vocabularyPlurals: [
+      '',
+      'doctors',
+      'nurses',
+      '',
+      'wards',
+      'surgeons',
+      'operating rooms',
+      ''
+    ],
     vocabularyDefinitions: [
       'relating to the science or practice of medicine',
       'a qualified practitioner of medicine; a physician',
