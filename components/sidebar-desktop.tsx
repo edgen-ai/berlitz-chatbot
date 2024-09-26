@@ -8,7 +8,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 export function SidebarDesktop() {
   const session = auth()
 
-  const { isSidebarOpen } = useSidebar()
+  const { isSidebarOpen, toggleSidebar } = useSidebar()
 
   return (
     <>
@@ -16,7 +16,10 @@ export function SidebarDesktop() {
         <ChatHistory />
       </Sidebar>
       {isSidebarOpen ? (
-        <div className="fixed inset-0 z-20 bg-zinc-400 opacity-50 top-10 hidden md:block" />
+        <div
+          className="fixed inset-0 z-20 bg-zinc-400 opacity-50 top-10 hidden md:block"
+          onClick={toggleSidebar}
+        />
       ) : null}
     </>
   )
