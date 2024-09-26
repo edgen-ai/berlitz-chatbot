@@ -41,7 +41,7 @@ const Message = ({ key, message, onStartRecording, onStopRecording, isRecording 
                 }
               }}
             >
-              {isRecording ? '■' : '🎤'}
+              {isRecording ? 'Press to stop■' : 'Press to record 🎤'}
             </button>
           </>
         ) : (
