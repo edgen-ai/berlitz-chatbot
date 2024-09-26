@@ -94,7 +94,7 @@ const classTypes: {
     name: 'Talk about health in general with no specific context',
     vocabulary: [],
     description:
-      'Free lesson: Talk about health in general with no specific context'
+      'Free lesson: Talk about healthcare in general with no specific context'
   }
 ]
 
