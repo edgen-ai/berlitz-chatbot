@@ -299,7 +299,7 @@ export function Chat({ id }: ChatProps) {
         console.error('Missing audio for sentence:', sentence.text)
         return
       }
-      setTextResponse(cleanup_markdown_from_text({ markdownText:sentence.text })
+      setTextResponse(cleanup_markdown_from_text({ markdownText:sentence.text }))
       console.log('sentence.audio', sentence.audio)
       console.log('sentence.text', sentence.text)
       setAudioBuffer(sentence.audio) // Set the audio buffer directly
