@@ -128,3 +128,85 @@ export async function POST(request: NextRequest) {
     });
   }
 }
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    if (!userId || typeof userId !== 'string') {
+      console.error('Invalid or missing userId:', userId);
+      return create_response({
+        request,
+        data: { error: 'Invalid or missing userId' },
+        status: 400
+      });
+    }
+
+    console.log('Fetching user progress from Supabase for userId:', userId);
+
+    // Query the database for user progress (first query)
+    const { data: progressData, error: progressError } = await supabase
+      .from('user_progress')
+      .select(`
+        id,
+        progress,
+        level,
+        current_lesson
+      `)
+      .eq('user_id', userId.trim()) // Filter by supabase_id
+    if (progressError || !progressData) {
+      console.error('Error fetching user progress data:', progressError);
+      return create_response({
+        request,
+        data: { error: progressError?.message || 'No data found' },
+        status: 500,
+      });
+    }
+    console.log('Fetched user progress data:', progressData);
+
+    const {data: lesson_data, error: lesson_error} = await supabase
+      .from("user_lessons")
+      .select("lesson_id")
+      .eq("user_progress_id", progressData[0].id)
+
+    if (lesson_error || !lesson_data) { 
+      console.error("Error fetching lessons data:", lesson_error);
+      return create_response({
+        request,
+        data: { error: lesson_error?.message || "No data found" },
+        status: 500,
+      });
+    }
+    // Get the lesson that has a lesson_id that is not null
+    const lesson_data_clean = lesson_data.filter((lesson) => lesson.lesson_id !== null)
+    const {data: class_data, error:class_error} = await supabase
+      .from("lesson_plan")
+      .select("*")
+      .eq("id", lesson_data_clean[0].lesson_id)
+      console.log("class_data", class_data)
+    if (class_error || !class_data) {
+      console.error("Error fetching class data:", class_error);
+      return create_response({
+        request,
+        data: { error: class_error?.message || "No data found" },
+        status: 500,
+      });
+    }
+
+    const response_dict = {current_lesson_id: lesson_data_clean[0].lesson_id, topic: class_data![0].topic, level: class_data![0].class_id.split(".")[0], progress: progressData[0].progress, id: progressData[0].id}
+    console.log("response_dict", response_dict)
+     // Ensure you return a response with the progress data if successful
+     return create_response({
+      request,
+      data: { progress: response_dict },
+      status: 200,
+    });
+  } catch (err) {
+    console.error('Error handling GET request:', err);
+    return create_response({
+      request,
+      data: { error: 'Internal Server Error' },
+      status: 500
+    });
+  }
+}

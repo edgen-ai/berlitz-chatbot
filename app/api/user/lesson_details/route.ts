@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Fetch the progress from user_lessons using user_progress_id and lesson_id
     const { data: userLessonData, error: userLessonError } = await supabase
       .from('user_lessons')
-      .select('progress')
+      .select('progress, type')
       .eq('user_progress_id', userProgressId)
       .eq('lesson_id', lessonId)
       .single();
@@ -65,11 +65,12 @@ export async function POST(request: NextRequest) {
     }
 
     const progress = userLessonData.progress;
+    const type = userLessonData.type;
 
     // Fetch topic and emoji from lesson_plan using lesson_id
     const { data: lessonPlanData, error: lessonPlanError } = await supabase
       .from('lesson_plan')
-      .select('topic, emoji')
+      .select('topic, emoji, specific_objective, learning_results, learning_experiences, session_sequence, contents')
       .eq('id', lessonId)
       .single();
 
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const { topic, emoji } = lessonPlanData;
+    const { topic, emoji, specific_objective, learning_experiences, learning_results, session_sequence, contents } = lessonPlanData;
 
     // Return the progress, topic, and emoji
     return create_response({
@@ -91,6 +92,12 @@ export async function POST(request: NextRequest) {
         progress,
         topic,
         emoji,
+        specific_objective,
+        learning_experiences,
+        learning_results,
+        session_sequence,
+        contents,
+        type
       },
       status: 200,
     });

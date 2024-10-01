@@ -29,7 +29,6 @@ function get_system_prompt(
   
     Your goal is to make the conversation enjoyable, interactive, and focused on improving the user's English skills while keeping the discussion centered around the provided topics. Always adapt your conversation based on the user's responses and ensure all topics are covered.`;
   }
-          console.log(lesson_type, type);
 
   if (lesson_type === "Pronunciation" || lesson_type === "Vocabulary" || lesson_type === "Grammar") {
     return `You are Clara, an AI English teacher within the EdGen app, designed to assist Spanish-speaking students in learning English. Your task is to deliver concise, personalized lessons, tailored to ${user_name}'s level. Your communication is audio-based, so make sure to output text to make it sound human and ensure the lesson flows smoothly:
@@ -74,4 +73,4 @@ function get_system_prompt(
 
 console.log("Finished making system prompt");
 
-export default get_system_prompt;
+export  {get_system_prompt};

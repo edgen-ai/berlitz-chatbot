@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
   // Fetch chat history from MongoDB
   const mongodb_history = new MongoDBChatMessageHistory({
     collection: client.db().collection("beluga-test"),
-    sessionId: connection_string,
+    sessionId: lesson_id,
   });
   const messages = await mongodb_history.getMessages();
   console.log("Messages fetched from MongoDB:", messages);
