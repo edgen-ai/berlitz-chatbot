@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
 
     console.log('Received request to fetch user data');
     console.log('Received userId:', userId);
+    console.log('Received request:', typeof userId);
 
     if (!userId || typeof userId !== 'string') {
       console.error('Invalid or missing userId:', userId);
@@ -25,8 +26,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
       .from('users')
       .select('*')
-      .eq('id', userId)
-      .single();
+      .eq('id', userId.trim())
 
     if (error) {
       console.error('Error fetching user data from Supabase:', error.message);
@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
         status: 500
       });
     }
-
     if (!data) {
       console.error('User not found for userId:', userId);
       return create_response({
@@ -45,8 +44,6 @@ export async function GET(request: NextRequest) {
         status: 404
       });
     }
-
-    console.log('User data successfully retrieved:', data);
 
     return create_response({
       request,

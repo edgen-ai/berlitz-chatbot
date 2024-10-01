@@ -22,10 +22,7 @@ function process_script(text: string): {
   function replaceExerciseTags(script: string): string {
     console.log('script', script)
     const replacementPhrasesExercise = [
-      '<esp>Ahora es tu turno.</esp>',
-      '<esp>Es tu turno inténtalo.</esp>',
-      '<esp>Es tu momento de intentarlo.</esp>',
-      '<esp>Es tu turno de intentarlo.</esp>'
+      ""
     ]
 
     const replacementPhrasesFill = [
@@ -44,7 +41,6 @@ function process_script(text: string): {
         return sample(replacementPhrasesExercise) + ' '
       }
     )
-    console.log('First cleaned script', cleanedScript)
 
     cleanedScript = cleanedScript.replace(
       /<fill>.*?<\/fill> \[ANSWER:(.*?)\]/g,
@@ -58,7 +54,6 @@ function process_script(text: string): {
 
   // Extract exercises
   const pronunciationExercises = extractPronunciation(text)
-  console.log('Pronunciation exercises', pronunciationExercises)
 
   const fillExercises = extractFill(text)
   const exercises = pronunciationExercises.concat(fillExercises)
@@ -67,7 +62,6 @@ function process_script(text: string): {
   const cleanedScript = replaceExerciseTags(text)
   console.log('Cleaned script', cleanedScript)
   const cleanText: string = convertNumbersToWords(cleanedScript)
-  console.log('Cleaned script', cleanText)
   return { cleanText, exercises }
 }
 
